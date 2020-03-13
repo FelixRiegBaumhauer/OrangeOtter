@@ -20,19 +20,20 @@ public:
 #define M_ENTRY_H
 
 #include <string>
+#include <ctime>
 
 class MonitorEntry{
 public:
   //char * filepath;
   std::string filepath;
-  int startTime;
+  time_t startTime;
   int duration;
   int clientId;  
   MonitorEntry * next;
 
   MonitorEntry();
   //MonitorEntry(char * fp, int s, int d, int c);
-  MonitorEntry(std::string fp, int s, int d, int c);
+  MonitorEntry(std::string fp, time_t s, int d, int c);
   MonitorEntry(MonitorEntry * me);
   ~MonitorEntry();
   void print();

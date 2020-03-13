@@ -63,7 +63,7 @@ MonitorEntry::MonitorEntry(){
 }
 
 //MonitorEntry::MonitorEntry(char * fp, int s, int d, int c){
-MonitorEntry::MonitorEntry(std::string fp, int s, int d, int c){
+MonitorEntry::MonitorEntry(std::string fp, time_t s, int d, int c){
 
 /*
   int length = strlen(fp);
