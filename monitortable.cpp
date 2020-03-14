@@ -1,3 +1,5 @@
+
+/*
 #include <iostream>
 #include <string.h>
 
@@ -16,6 +18,12 @@ void MonitorTable::insert(MonitorEntry * me){
   me->next = head;
   head = me;
   length+=1;
+
+  std::cout << "Adding To Monitor Table" << std::endl;
+  std::cout << me->next << std::endl;
+  std::cout << head->next << std::endl;
+
+  std::cout << me << std::endl;
 }
 
 //void MonitorTable::find(char * fp){
@@ -42,7 +50,11 @@ void MonitorTable::print(){
   MonitorEntry* cursor = head;
 
   while(cursor != nullptr){
-    (*cursor).print();
+      
+    //std::cout << cursor->next << std::endl;
+    std::cout << cursor << std::endl;
+
+    //(*cursor).print();
     //std::cout << cursor->filepath << std::endl;
     cursor = cursor->next;
   }
@@ -68,4 +80,76 @@ void MonitorTable::findAll(std::string fp, std::vector<MonitorEntry> * vec){
   }
   return;
 }
+
+std::vector<MonitorEntry> MonitorTable::findAll(std::string fp){
+  MonitorEntry * cursor = head;
+  std::vector<MonitorEntry> vec;
+
+  while(cursor != nullptr){
+    if( fp.compare(cursor->filepath) == 0 ){
+      vec.push_back(*cursor);
+    }
+    cursor = cursor->next;
+  }
+  return vec; 
+}
+*/
+
+
+
+
+#include <iostream>
+#include <string.h>
+
+#include "monitortable.h"
+
+MonitorTable::MonitorTable(){
+}
+
+MonitorTable::~MonitorTable(){
+  //std::cout << "Destroy MonitorTable" << std::endl;
+}
+
+void MonitorTable::insert(MonitorEntry me){
+  list.push_back(me);
+}
+
+void MonitorTable::print(){
+  int i;
+  for(i=0; i<list.size(); i++){
+    std::cout << i+1 << ") " << list[i].toString() << std::endl;
+  }
+}
+
+std::vector<MonitorEntry> MonitorTable::findAll(std::string fp){
+  std::vector<MonitorEntry> vec;  
+  int i;
+  for(i=0; i<list.size(); i++){
+    if( fp.compare(list[i].filepath) == 0 ){
+      vec.push_back(list[i]);
+    }
+  }
+  return vec;
+}
+
+
+std::vector<MonitorEntry> MonitorTable::sweep(std::string fp){
+  std::vector<MonitorEntry> vec;  
+  int i;
+
+  time_t cur_time = time(0);
+
+  for(i=0; i<list.size(); i++){
+    if(list[i].startTime+list[i].duration < cur_time ){
+      std::cout << "Take Out: " + list[i].toString() << std::endl;
+      list.erase(list.begin() + i);
+    }
+    else if( fp.compare(list[i].filepath) == 0 ){
+      vec.push_back(list[i]);
+    }
+  }
+
+  return vec;
+}
+
 

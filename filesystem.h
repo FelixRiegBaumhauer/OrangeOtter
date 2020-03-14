@@ -1,4 +1,37 @@
+#include <iostream>
+#include <fstream>
+#include <ctime>
 
+#include "monitortable.h"
+#include "nofileexception.h"
+#include "fileboundexception.h"
+
+
+class FileSystem{
+public:
+  FileSystem();
+  std::string readFile(std::string filepath, int offset, int num);
+  void insertFile(std::string filepath, int offset, std::string bytes);
+  void monitorFile(std::string, int duration, int clientId);
+  char getMode(std::string);
+  void shiftFile(std::string, int direction);
+
+  void checkFile(std::string filepath);
+
+  void printMt();
+
+
+private:
+  std::string shiftString(std::string str, int direction);
+
+  MonitorTable mt;
+
+
+};
+
+
+
+/*
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -10,12 +43,18 @@
 //#include <string.h>
 
 
+#include <string>
 
 class FileSystem {
 
 public:
+
+  void foo(std::string s);
+
   //assume that ret buf is the appropriate size, ie num+1
   int readFile(char * filepath, int offset, int num, char * ret_buf);
+
+  int readFile(std::string filepath, int offset, int num, std::string retStr);
 
   //0 is ok, -1 for error
   int insertFile(char * filepath, int offset, char * bytes, int byte_len);
@@ -30,3 +69,4 @@ public:
   //1 for up, -1 for down
   int shiftFile(char * filepath, int direction);
 };
+*/
