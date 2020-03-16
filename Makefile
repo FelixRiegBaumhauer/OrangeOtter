@@ -26,11 +26,26 @@ clean_tester: tester
 clean_object:
 	@rm *.o
 
-clean: clean_tester clean_object
+clean: 
+	@rm client
+	@rm server
+
+
+marshal: marshal.h marshal.cpp
+	${CC} -o marshal marshal.cpp marshal.h
+
+clean_marshal:
+	@rm marshal
 
 deep_clean:
 	@rm *~
 
+
+server: server.cpp server.h
+	$(CC) -o server server.cpp
+
+client: client.cpp client.h
+	$(CC) -o client client.cpp
 
 runner: tester.cpp
 	${CC} -c monitorentry.cpp monitorentry.h
