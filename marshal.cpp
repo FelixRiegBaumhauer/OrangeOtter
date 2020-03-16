@@ -155,7 +155,7 @@ unsigned char * Marshal::marshalReadCall(ReadCall rc){
 	return buf_stream;
 }
 
-ReadCall Marshal::unmarshallReadCall(unsigned char * buf_stream){
+ReadCall Marshal::unmarshalReadCall(unsigned char * buf_stream){
 	uint uint_size = sizeof(uint);
 	uint size;
 	uint offset;
@@ -215,7 +215,7 @@ unsigned char * Marshal::marshalInsertCall(InsertCall ic){
 
 	return buf_stream;
 }
-InsertCall Marshal::unmarshallInsertCall(unsigned char * buf_stream){
+InsertCall Marshal::unmarshalInsertCall(unsigned char * buf_stream){
 	uint uint_size = sizeof(uint);
 	uint size;
 	uint offset;
@@ -274,7 +274,7 @@ unsigned char * Marshal::marshalMonitorCall(MonitorCall mc){
 
 	return buf_stream;
 }
-MonitorCall Marshal::unmarshallMonitorCall(unsigned char * buf_stream){
+MonitorCall Marshal::unmarshalMonitorCall(unsigned char * buf_stream){
 	uint uint_size = sizeof(uint);
 	uint size;
 	uint duration;
@@ -326,7 +326,7 @@ unsigned char * Marshal::marshalShiftCall(ShiftCall sc){
 
 	return buf_stream;
 }
-ShiftCall Marshal::unmarshallShiftCall(unsigned char * buf_stream){
+ShiftCall Marshal::unmarshalShiftCall(unsigned char * buf_stream){
 	uint uint_size = sizeof(uint);
 	uint size;
 	std::string filepath;
@@ -374,7 +374,7 @@ unsigned char * Marshal::marshalModeCall(ModeCall mc){
 
 	return buf_stream;
 }
-ModeCall Marshal::unmarshallModeCall(unsigned char * buf_stream){
+ModeCall Marshal::unmarshalModeCall(unsigned char * buf_stream){
 	uint uint_size = sizeof(uint);
 	uint size;
 	std::string filepath;
@@ -470,31 +470,31 @@ int main(){
 
 	rc1.print();
 	buf = marshal.marshalReadCall(rc1);
-	ReadCall rc2 = marshal.unmarshallReadCall(buf);
+	ReadCall rc2 = marshal.unmarshalReadCall(buf);
 	rc2.print();
 	free(buf);
 
 	ic1.print();
 	buf = marshal.marshalInsertCall(ic1);
-	InsertCall ic2 = marshal.unmarshallInsertCall(buf);
+	InsertCall ic2 = marshal.unmarshalInsertCall(buf);
 	ic2.print();
 	free(buf);
 
 	mc1.print();
 	buf = marshal.marshalMonitorCall(mc1);
-	MonitorCall mc2 = marshal.unmarshallMonitorCall(buf);
+	MonitorCall mc2 = marshal.unmarshalMonitorCall(buf);
 	mc2.print();
 	free(buf);
 
 	sc1.print();
 	buf = marshal.marshalShiftCall(sc1);
-	ShiftCall sc2 = marshal.unmarshallShiftCall(buf);
+	ShiftCall sc2 = marshal.unmarshalShiftCall(buf);
 	sc2.print();
 	free(buf);
 
 	moc1.print();
 	buf = marshal.marshalModeCall(moc1);
-	ModeCall moc2 = marshal.unmarshallModeCall(buf);
+	ModeCall moc2 = marshal.unmarshalModeCall(buf);
 	moc2.print();
 	free(buf);
 

@@ -115,19 +115,19 @@ class Marshal{
 public:
 
 	unsigned char * marshalReadCall(ReadCall rc);
-	ReadCall unmarshallReadCall(unsigned char * buf_stream);
+	ReadCall unmarshalReadCall(unsigned char * buf_stream);
 
 	unsigned char * marshalInsertCall(InsertCall ic);
-	InsertCall unmarshallInsertCall(unsigned char * buf_stream);
+	InsertCall unmarshalInsertCall(unsigned char * buf_stream);
 
 	unsigned char * marshalMonitorCall(MonitorCall mc);
-	MonitorCall unmarshallMonitorCall(unsigned char * buf_stream);
+	MonitorCall unmarshalMonitorCall(unsigned char * buf_stream);
 
 	unsigned char * marshalShiftCall(ShiftCall sc);
-	ShiftCall unmarshallShiftCall(unsigned char * buf_stream);
+	ShiftCall unmarshalShiftCall(unsigned char * buf_stream);
 
 	unsigned char * marshalModeCall(ModeCall mc);
-	ModeCall unmarshallModeCall(unsigned char * buf_stream);
+	ModeCall unmarshalModeCall(unsigned char * buf_stream);
 
 	unsigned char * marshalResponse(Response r);
 	Response unmarshalResponse(unsigned char * buf_stream);
