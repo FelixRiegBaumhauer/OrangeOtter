@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 #define BITS_IN_BYTE 8
@@ -31,6 +32,7 @@ typedef enum success_type {
 	OtherFailure = 2
 } SuccessType;
 
+/*
 typedef struct read_call{
 	char * filepath;
 	int offset;
@@ -55,7 +57,8 @@ typedef struct shift_call{
 typedef struct mode_call{
 	char * filepath;
 } Mode_Call;
-
+*/
+/*
 class ReadCall{
 public:
 	std::string filepath;
@@ -100,6 +103,17 @@ public:
 	ModeCall(std::string filepath);
 	void print();
 };
+*/
+
+class Call{
+public:
+	CallType callType;
+	std::vector<uint> intArgs;
+	std::vector<std::string> strArgs;
+
+	Call(CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs);
+	void print();
+};
 
 class Response{
 public:
@@ -114,6 +128,7 @@ public:
 class Marshal{
 public:
 
+/*
 	unsigned char * marshalReadCall(ReadCall rc);
 	ReadCall unmarshalReadCall(unsigned char * buf_stream);
 
@@ -128,9 +143,26 @@ public:
 
 	unsigned char * marshalModeCall(ModeCall mc);
 	ModeCall unmarshalModeCall(unsigned char * buf_stream);
+*/
+
+
+	unsigned char * marshalCall(Call c);
+	Call unmarshalCall(unsigned char * buf_stream);
+
 
 	unsigned char * marshalResponse(Response r);
 	Response unmarshalResponse(unsigned char * buf_stream);
+
+
+
+
+	uint packageStrings(std::vector<std::string> src, unsigned char * dest);
+	uint unpackageStrings(unsigned char * src, std::vector<std::string> * dest);
+
+
+	uint packageInts(std::vector<uint> src, unsigned char * dest);
+	uint unpackageInts(unsigned char * src, std::vector<uint> * dest);
+
 
 	void intToChar(uint src, unsigned char * dest);
 	int charToInt(unsigned char * src);
@@ -140,6 +172,8 @@ public:
 	uint unpackageString(unsigned char * src, std::string * dest);
 
 	uint stringLength(std::string s);
+	uint stringsLength(std::vector<std::string> strs);
+	uint intsLength(std::vector<uint> ints);
 
 
 };
