@@ -56,7 +56,8 @@ int client_loop(int port){
 
     std::string inputText;
     unsigned char * byte_stream;
-    Marshal m;
+    Marshal marshal;
+    Message m;
 
 
     int sockfd; 
@@ -112,11 +113,15 @@ int client_loop(int port){
 
         std::cout <<  "read" << std::endl; 
 
-        Call c = Call(Read, {offset, num}, {filepath});
-        c.print();
+        //Call c = Call(Read, {offset, num}, {filepath});
+        //c.print();
+        m = Message(Call, Read, {offset, num}, {filepath});
+        m.print();
+
 
         uint stream_len;
-        byte_stream = m.marshalCall(c, &stream_len);
+        //byte_stream = m.marshalCall(c, &stream_len);
+        byte_stream = marshal.marshalMessage(m, &stream_len);
 
         //now send it out
 
@@ -130,8 +135,10 @@ int client_loop(int port){
         //buffer[n] = '\0'; 
 
         uint call_len;
-        Response r = m.unmarshalResponse((unsigned char *)buffer, &call_len);
-        r.print();
+        m = marshal.unmarshalMessage((unsigned char *)buffer, &call_len);
+        m.print();
+        //Response r = m.unmarshalResponse((unsigned char *)buffer, &call_len);
+        //r.print();
 
         //printf("Server : %s\n", buffer);
 

@@ -94,7 +94,8 @@ int server_recv(int port){
     unsigned char * byte_stream;
 
 
-    Marshal m;
+    Marshal marshal;
+    Message m;
       
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
@@ -120,13 +121,20 @@ int server_recv(int port){
         //buffer[n] = '\0'; 
 
         uint call_len;
-        Call c = m.unmarshalCall((unsigned char *)buffer, &call_len);
-        c.print();
+        m = marshal.unmarshalMessage((unsigned char *)buffer, &call_len);
+        m.print();
+        //Call c = m.unmarshalCall((unsigned char *)buffer, &call_len);
+        //c.print();
 
         //now we send our response
-        Response r = Response(Read, Good, "abcdefghij");
+        //Response r = Response(Read, Good, "abcdefghij");
+        //uint stream_len;
+        //byte_stream = m.marshalResponse(r, &stream_len);
+        //m = Message(Response, Read, {Good}, {"abcdefghij"});
+        m = Message(AckType, Ack, {}, {});
         uint stream_len;
-        byte_stream = m.marshalResponse(r, &stream_len);
+        byte_stream = marshal.marshalMessage(m, &stream_len);
+
 
         sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
         printf("Message sent to client.\n");  
