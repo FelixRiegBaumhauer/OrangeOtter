@@ -772,7 +772,7 @@ uint Marshal::unmarshalResponse(unsigned char * buf_stream, Response * dest){
 */
 
 
-
+/*
 unsigned char * Marshal::marshalCall(Call c, uint * len){
 	uint uint_size = sizeof(uint);
 	uint size;
@@ -901,7 +901,121 @@ Response Marshal::unmarshalResponse(unsigned char * buf_stream, uint * len){
 
 	return r;
 }
+*/
 
+unsigned char * Marshal::marshalMessage(Message m, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+	unsigned char * buf_stream;
+	uint pos = 0;
+	uint str_space;
+	uint i;
+
+
+	//Structure of a Call as byte string is as follows
+	// {size, type, [int args], [str args]}
+	// The int and string args are packaged as follows
+	// {num elements [elements]}
+	//
+	size = 3*uint_size;
+	size += intsLength(m.intArgs);
+	size += stringsLength(m.strArgs);
+
+	buf_stream = (unsigned char *) malloc(size);
+
+	intToChar(size, buf_stream+pos);
+	pos += uint_size;
+	intToChar(m.type, buf_stream+pos);
+	pos += uint_size;
+	intToChar(m.callType, buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = packageInts(m.intArgs, buf_stream+pos);
+	pos += str_space;
+
+
+	str_space = packageStrings(m.strArgs, buf_stream+pos);
+	pos += str_space;
+
+	*len = pos;
+
+	return buf_stream;
+}
+
+Message Marshal::unmarshalMessage(unsigned char * buf_stream, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+	uint pos = 0;
+	uint str_space;
+
+	MessageType messageType;
+	CallType callType;
+	std::vector<uint> intArgs;
+	std::vector<std::string> strArgs;
+
+	//no real need for this
+	size = charToInt(buf_stream+pos);
+	pos += uint_size;
+	messageType = (MessageType)charToInt(buf_stream+pos);
+	pos += uint_size;
+	callType = (CallType)charToInt(buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = unpackageInts(buf_stream+pos, &intArgs);
+	pos += str_space;
+
+	str_space = unpackageStrings(buf_stream+pos, &strArgs);
+	pos += str_space;
+
+	Message m = Message(messageType, callType, intArgs, strArgs);
+
+	*len = pos;
+
+	return m;
+}
+
+/*
+int main(){
+
+	Marshal marshal;
+
+	std::string filepath = "abc.txt";
+	std::string bytes = "hello";
+	unsigned char * buf;
+	uint i;
+
+	uint len;
+
+
+	Message m10 = Message(Call, Read, {0,1,2}, {filepath, bytes});
+	Message m20 = Message(AckType, Ack, {}, {});
+
+	m10.print();
+	buf = marshal.marshalMessage(m10, &len);
+	printf("%d\n", len);
+
+	Message m11 = marshal.unmarshalMessage(buf, &len);
+	m11.print();
+	printf("%d\n", len);
+	free(buf);
+
+
+
+	m20.print();
+	buf = marshal.marshalMessage(m20, &len);
+	printf("%d\n", len);
+
+	Message m21 = marshal.unmarshalMessage(buf, &len);
+	m21.print();
+	printf("%d\n", len);
+	free(buf);
+
+
+	return 0;
+}
+*/
 
 /*
 
@@ -1103,6 +1217,7 @@ void ModeCall::print(){
 }
 */
 
+/*
 Call::Call(CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs){
 	this->callType = callType;
 	this->intArgs = intArgs;
@@ -1139,11 +1254,68 @@ void Call::print(){
 	}
 
 	std::cout << std::endl;
+}
+*/
 
 
+Message::Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs){
+	this->type = type;
+	this->callType = callType;
+	this->intArgs = intArgs;
+	this->strArgs = strArgs;
 }
 
+Message::Message(){
+	this->type = AckType;
+	this->callType = Ack;
+	this->intArgs = {};
+	this->strArgs = {};
+}
 
+void Message::print(){
+	uint i;
+	std::string responseType;
+	std::string messageType;
+
+	switch(type){
+		case Call: messageType = "Call";
+			break;
+		case Response: messageType = "Response";
+			break;
+		case AckType: messageType = "Ack Type";
+			break;
+	}
+
+	switch(callType){
+		case Read: responseType = "Read";
+			break;
+		case Insert: responseType = "Insert";
+			break;
+		case Monitor: responseType = "Monitor";
+			break;
+		case Shift: responseType = "Shift";
+			break;
+		case Mode: responseType = "Mode";
+			break;
+		case Ack: responseType = "Ack";
+			break;
+	}
+	std::cout << "Message Type: " << messageType << " Call Type: " << responseType << " ";
+	std::cout << "Int args:";
+	for(i=0; i<intArgs.size(); i++){
+		std::cout << " " << intArgs[i];
+	}
+	std::cout << " ";
+
+	std::cout << "Str args:";
+	for(i=0; i<strArgs.size(); i++){
+		std::cout << " " << strArgs[i];
+	}
+
+	std::cout << std::endl;
+}
+
+/*
 Response::Response(CallType respType, SuccessType success, std::string respString){
 	this->respType = respType;
 	this->success = success;
@@ -1169,3 +1341,4 @@ void Response::print(){
 
 	std::cout << "Response: Response Type: " << responseType << " Success Type: " << success << " Response String: " << respString << std::endl;
 }
+*/

@@ -13,8 +13,17 @@ typedef enum call_type {
 	Insert = 1, 
 	Monitor = 2, 
 	Shift = 3, 
-	Mode = 4
+	Mode = 4,
+	Ack = 5
 } CallType;
+
+
+typedef enum message_type {
+	Call = 0,
+	Response = 1,
+	AckType = 2
+} MessageType;
+
 
 /*
 typedef enum response_type {
@@ -105,6 +114,7 @@ public:
 };
 */
 
+/*
 class Call{
 public:
 	CallType callType;
@@ -124,6 +134,21 @@ public:
 	Response(CallType respType, SuccessType success, std::string respString);
 	void print();
 };
+*/
+
+
+class Message{
+public:
+	MessageType type;
+	CallType callType;
+	std::vector<uint> intArgs;
+	std::vector<std::string> strArgs;	
+
+	Message();
+	Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs);
+	void print();
+};
+
 
 class Marshal{
 public:
@@ -153,11 +178,18 @@ public:
 	Response unmarshalResponse(unsigned char * buf_stream);
 */
 
+/* 
+//THESE ARE THE GOOD ONES
 	unsigned char * marshalCall(Call c, uint * len);
 	Call unmarshalCall(unsigned char * buf_stream, uint * len);
 
 	unsigned char * marshalResponse(Response r, uint * len);
 	Response unmarshalResponse(unsigned char * buf_stream, uint * len);
+*/
+
+	unsigned char * marshalMessage(Message m, uint * len);
+	Message unmarshalMessage(unsigned char * buf_stream, uint * len);
+
 
 /*
 	uint marshalCall(Call c, unsigned char ** dest);
