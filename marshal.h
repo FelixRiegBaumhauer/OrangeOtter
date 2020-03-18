@@ -145,15 +145,27 @@ public:
 	ModeCall unmarshalModeCall(unsigned char * buf_stream);
 */
 
-
+/*
 	unsigned char * marshalCall(Call c);
 	Call unmarshalCall(unsigned char * buf_stream);
 
-
 	unsigned char * marshalResponse(Response r);
 	Response unmarshalResponse(unsigned char * buf_stream);
+*/
 
+	unsigned char * marshalCall(Call c, uint * len);
+	Call unmarshalCall(unsigned char * buf_stream, uint * len);
 
+	unsigned char * marshalResponse(Response r, uint * len);
+	Response unmarshalResponse(unsigned char * buf_stream, uint * len);
+
+/*
+	uint marshalCall(Call c, unsigned char ** dest);
+	uint unmarshalCall(unsigned char * buf_stream, Call * dest);
+
+	uint marshalResponse(Response r, unsigned char ** dest);
+	uint unmarshalResponse(unsigned char * buf_stream, Response * dest);
+*/
 
 
 	uint packageStrings(std::vector<std::string> src, unsigned char * dest);

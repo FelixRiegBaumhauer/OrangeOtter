@@ -520,7 +520,7 @@ uint Marshal::unpackageInts(unsigned char * src, std::vector<uint> * dest){
 	return bytes_writen;
 }
 
-
+/*
 unsigned char * Marshal::marshalCall(Call c){
 	uint uint_size = sizeof(uint);
 	uint size;
@@ -641,6 +641,269 @@ Response Marshal::unmarshalResponse(unsigned char * buf_stream){
 
 	return r;
 }
+*/
+
+/*
+uint Marshal::marshalCall(Call c, unsigned char ** dest){
+	uint uint_size = sizeof(uint);
+	uint size;
+	unsigned char * buf_stream;
+	uint pos = 0;
+	uint str_space;
+	uint i;
+
+
+	//Structure of a Call as byte string is as follows
+	// {size, type, [int args], [str args]}
+	// The int and string args are packaged as follows
+	// {num elements [elements]}
+	//
+	size = 2*uint_size;
+	size += intsLength(c.intArgs);
+	size += stringsLength(c.strArgs);
+
+	buf_stream = (unsigned char *) malloc(size);
+
+	intToChar(size, buf_stream+pos);
+	pos += uint_size;
+	intToChar(c.callType, buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = packageInts(c.intArgs, buf_stream+pos);
+	pos += str_space;
+
+
+	str_space = packageStrings(c.strArgs, buf_stream+pos);
+	pos += str_space;
+
+	*dest = buf_stream;
+
+	return pos;
+
+	//return buf_stream;
+}
+
+uint Marshal::unmarshalCall(unsigned char * buf_stream, Call * dest){
+	uint uint_size = sizeof(uint);
+	uint size;
+	uint pos = 0;
+	uint str_space;
+
+	CallType callType;
+	std::vector<uint> intArgs;
+	std::vector<std::string> strArgs;
+
+	//no real need for this
+	size = charToInt(buf_stream+pos);
+	pos += uint_size;
+	callType = (CallType)charToInt(buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = unpackageInts(buf_stream+pos, &intArgs);
+	pos += str_space;
+
+	str_space = unpackageStrings(buf_stream+pos, &strArgs);
+	pos += str_space;
+
+	//Call c = Call(callType, intArgs, strArgs);
+	*dest = Call(callType, intArgs, strArgs);
+	
+	return pos;
+}
+
+
+
+uint Marshal::marshalResponse(Response r, unsigned char ** dest){
+	uint uint_size = sizeof(uint);
+	uint size;
+	unsigned char * buf_stream;
+	uint pos = 0;
+	uint str_space;
+
+
+	//first we calculate the total size of our byte stream
+	//size type [int args] [str args]
+	//for a read call we have 2 int args and 1 string arg
+	size = 3*uint_size + stringLength(r.respString);
+
+	buf_stream = (unsigned char *) malloc(size);
+
+	intToChar(size, buf_stream+pos);
+	pos += uint_size;
+	intToChar(r.respType, buf_stream+pos);
+	pos += uint_size;
+	intToChar(r.success, buf_stream+pos);
+	pos += uint_size;
+
+	str_space = packageString(r.respString, buf_stream+pos);
+	pos += str_space;
+
+	*dest = buf_stream;
+	return pos;
+}
+uint Marshal::unmarshalResponse(unsigned char * buf_stream, Response * dest){
+	uint uint_size = sizeof(uint);
+	uint size;
+
+	CallType respType;
+	SuccessType success;
+	std::string respString;
+
+	uint pos = 0;
+	uint str_space;
+
+	//no real need for this
+	size = charToInt(buf_stream+pos);
+	pos += uint_size;
+	respType = (CallType)charToInt(buf_stream+pos);
+	pos += uint_size;
+	success = (SuccessType)charToInt(buf_stream+pos);
+	pos += uint_size;
+
+	str_space = unpackageString(buf_stream+pos, &respString);
+	pos += str_space;
+
+	*dest = Response(respType, success, respString);
+
+	return pos;
+}
+*/
+
+
+
+unsigned char * Marshal::marshalCall(Call c, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+	unsigned char * buf_stream;
+	uint pos = 0;
+	uint str_space;
+	uint i;
+
+
+	//Structure of a Call as byte string is as follows
+	// {size, type, [int args], [str args]}
+	// The int and string args are packaged as follows
+	// {num elements [elements]}
+	//
+	size = 2*uint_size;
+	size += intsLength(c.intArgs);
+	size += stringsLength(c.strArgs);
+
+	buf_stream = (unsigned char *) malloc(size);
+
+	intToChar(size, buf_stream+pos);
+	pos += uint_size;
+	intToChar(c.callType, buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = packageInts(c.intArgs, buf_stream+pos);
+	pos += str_space;
+
+
+	str_space = packageStrings(c.strArgs, buf_stream+pos);
+	pos += str_space;
+
+	*len = pos;
+
+	return buf_stream;
+}
+
+Call Marshal::unmarshalCall(unsigned char * buf_stream, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+	uint pos = 0;
+	uint str_space;
+
+	CallType callType;
+	std::vector<uint> intArgs;
+	std::vector<std::string> strArgs;
+
+	//no real need for this
+	size = charToInt(buf_stream+pos);
+	pos += uint_size;
+	callType = (CallType)charToInt(buf_stream+pos);
+	pos += uint_size;
+
+
+	str_space = unpackageInts(buf_stream+pos, &intArgs);
+	pos += str_space;
+
+	str_space = unpackageStrings(buf_stream+pos, &strArgs);
+	pos += str_space;
+
+	Call c = Call(callType, intArgs, strArgs);
+	//Call c = Call(callType, intArgs, {"123"});
+
+	*len = pos;
+
+	return c;
+}
+
+
+
+unsigned char * Marshal::marshalResponse(Response r, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+	unsigned char * buf_stream;
+	uint pos = 0;
+	uint str_space;
+
+
+	//first we calculate the total size of our byte stream
+	//size type [int args] [str args]
+	//for a read call we have 2 int args and 1 string arg
+	size = 3*uint_size + stringLength(r.respString);
+
+	buf_stream = (unsigned char *) malloc(size);
+
+	intToChar(size, buf_stream+pos);
+	pos += uint_size;
+	intToChar(r.respType, buf_stream+pos);
+	pos += uint_size;
+	intToChar(r.success, buf_stream+pos);
+	pos += uint_size;
+
+	str_space = packageString(r.respString, buf_stream+pos);
+	pos += str_space;
+
+	*len = pos;
+
+	return buf_stream;
+}
+Response Marshal::unmarshalResponse(unsigned char * buf_stream, uint * len){
+	uint uint_size = sizeof(uint);
+	uint size;
+
+	CallType respType;
+	SuccessType success;
+	std::string respString;
+
+	uint pos = 0;
+	uint str_space;
+
+	//no real need for this
+	size = charToInt(buf_stream+pos);
+	pos += uint_size;
+	respType = (CallType)charToInt(buf_stream+pos);
+	pos += uint_size;
+	success = (SuccessType)charToInt(buf_stream+pos);
+	pos += uint_size;
+
+	str_space = unpackageString(buf_stream+pos, &respString);
+	pos += str_space;
+
+	Response r = Response(respType, success, respString);
+
+	*len = pos;
+
+	return r;
+}
+
+
+
 
 int main(){
 
@@ -653,6 +916,7 @@ int main(){
 	unsigned char * buf;
 	uint i;
 
+	uint len;
 
 
 
@@ -663,128 +927,56 @@ int main(){
 	Call c50 = Call(Mode, {}, {filepath});
 
 	c10.print();
-	buf = marshal.marshalCall(c10);
-	Call c11 = marshal.unmarshalCall(buf);
+	buf = marshal.marshalCall(c10, &len);
+	printf("len: %d\n", len);
+
+
+	Call c11 = marshal.unmarshalCall(buf, &len);
 	c11.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 
 
 	c20.print();
-	buf = marshal.marshalCall(c20);
-	Call c21 = marshal.unmarshalCall(buf);
+	buf = marshal.marshalCall(c20, &len);
+	printf("len: %d\n", len);
+
+	Call c21 = marshal.unmarshalCall(buf, &len);
 	c21.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 
 	c30.print();
-	buf = marshal.marshalCall(c30);
-	Call c31 = marshal.unmarshalCall(buf);
+	buf = marshal.marshalCall(c30, &len);
+	printf("len: %d\n", len);
+
+	Call c31 = marshal.unmarshalCall(buf, &len);
 	c31.print();
+	printf("len: %d\n", len);
 	free(buf);
 	
 
 
 	c40.print();
-	buf = marshal.marshalCall(c40);
-	Call c41 = marshal.unmarshalCall(buf);
+	buf = marshal.marshalCall(c40, &len);
+	printf("len: %d\n", len);
+
+	Call c41 = marshal.unmarshalCall(buf, &len);
 	c41.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	c50.print();
-	buf = marshal.marshalCall(c50);
-	Call c51 = marshal.unmarshalCall(buf);
+	buf = marshal.marshalCall(c50, &len);
+	printf("len: %d\n", len);
+
+	Call c51 = marshal.unmarshalCall(buf, &len);
 	c51.print();
+	printf("len: %d\n", len);
 	free(buf);
 
-
-/*
-	unsigned char buffer [16];
-	uint l = marshal.packageInts({3,4,5}, buffer);
-
-	std::cout << l << std::endl;
-
-	for(i=0; i<l; i++){
-		printf("%d", buffer[i]);
-	}
-	printf("\n");
-
-	std::vector<uint> ints;
-	l = marshal.unpackageInts(buffer, &ints);
-
-	std::cout << l << std::endl;
-
-	for(i=0; i<ints.size(); i++){
-		std::cout << ints[i];
-	}
-	std::cout << std::endl;
-*/
-
-/*
-	std::string str = "abcde";
-
-	unsigned char buffer [16];
-	uint l;
-
-	//l = marshal.packageStrings({s}, buffer);
-	l = marshal.packageStrings({str, "adf"}, buffer);
-	std::cout << l << std::endl;
-
-	for(i=0; i<l; i++){
-		printf("%d", buffer[i]);
-	}
-	printf("\n");
-
-
-	std::cout << "Here" << std::endl;
-	std::vector<std::string> strs;
-
-	l = marshal.unpackageStrings(buffer, &strs);
-	std::cout << l << std::endl;
-
-	for(i=0; i<strs.size(); i++){
-		std::cout << strs[i];
-	}
-	std::cout << std::endl;
-*/
-
-/*
-	ReadCall rc1 = ReadCall(filepath, 0, 10);
-	InsertCall ic1 = InsertCall(filepath, 0, bytes);
-	MonitorCall mc1 = MonitorCall(filepath, 100);
-	ShiftCall sc1 = ShiftCall(filepath);
-	ModeCall moc1 = ModeCall(filepath);
-
-	rc1.print();
-	buf = marshal.marshalReadCall(rc1);
-	ReadCall rc2 = marshal.unmarshalReadCall(buf);
-	rc2.print();
-	free(buf);
-
-	ic1.print();
-	buf = marshal.marshalInsertCall(ic1);
-	InsertCall ic2 = marshal.unmarshalInsertCall(buf);
-	ic2.print();
-	free(buf);
-
-	mc1.print();
-	buf = marshal.marshalMonitorCall(mc1);
-	MonitorCall mc2 = marshal.unmarshalMonitorCall(buf);
-	mc2.print();
-	free(buf);
-
-	sc1.print();
-	buf = marshal.marshalShiftCall(sc1);
-	ShiftCall sc2 = marshal.unmarshalShiftCall(buf);
-	sc2.print();
-	free(buf);
-
-	moc1.print();
-	buf = marshal.marshalModeCall(moc1);
-	ModeCall moc2 = marshal.unmarshalModeCall(buf);
-	moc2.print();
-	free(buf);
-*/
 
 
 	Response r1 = Response(Read, Good, "Hello World");
@@ -797,51 +989,72 @@ int main(){
 
 
 	r1.print();
-	buf = marshal.marshalResponse(r1);
-	Response r10 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r1, &len);
+	printf("len: %d\n", len);
+
+	Response r10 = marshal.unmarshalResponse(buf, &len);
 	r10.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r2.print();
-	buf = marshal.marshalResponse(r2);
-	Response r20 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r2, &len);
+	printf("len: %d\n", len);
+
+	Response r20 = marshal.unmarshalResponse(buf, &len);
 	r20.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r3.print();
-	buf = marshal.marshalResponse(r3);
-	Response r30 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r3, &len);
+	printf("len: %d\n", len);
+
+	Response r30 = marshal.unmarshalResponse(buf, &len);
 	r30.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r4.print();
-	buf = marshal.marshalResponse(r4);
-	Response r40 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r4, &len);
+	printf("len: %d\n", len);
+
+	Response r40 = marshal.unmarshalResponse(buf, &len);
 	r40.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r5.print();
-	buf = marshal.marshalResponse(r5);
-	Response r50 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r5, &len);
+	printf("len: %d\n", len);
+
+	Response r50 = marshal.unmarshalResponse(buf, &len);
 	r50.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r6.print();
-	buf = marshal.marshalResponse(r6);
-	Response r60 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r6, &len);
+	printf("len: %d\n", len);
+
+	Response r60 = marshal.unmarshalResponse(buf, &len);
 	r60.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 	r7.print();
-	buf = marshal.marshalResponse(r7);
-	Response r70 = marshal.unmarshalResponse(buf);
+	buf = marshal.marshalResponse(r7, &len);
+	printf("len: %d\n", len);
+
+	Response r70 = marshal.unmarshalResponse(buf, &len);
 	r70.print();
+	printf("len: %d\n", len);
 	free(buf);
 
 
-
-
+	return 0;
 }
+
 
 
 
