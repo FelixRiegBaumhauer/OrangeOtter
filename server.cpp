@@ -36,56 +36,7 @@ int input_timeout (int filedes, unsigned int seconds)
 
 }
 
-/*
-int server_recv(int port){
-    int sockfd; 
-    char buffer[MAXLINE]; 
-    char *hello = "Hello from server"; 
-    struct sockaddr_in servaddr, cliaddr; 
-      
-    // Creating socket file descriptor 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-      
-    memset(&servaddr, 0, sizeof(servaddr)); 
-    memset(&cliaddr, 0, sizeof(cliaddr)); 
-      
-    // Filling server information 
-    servaddr.sin_family    = AF_INET; // IPv4 
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    servaddr.sin_port = htons(port); 
-      
-    // Bind the socket with the server address 
-    if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
-      
-    int len, n; 
-  
-    len = sizeof(cliaddr);  //len is value/resuslt 
-
-
-    printf("%d\n", sockfd);
-
-
-    input_timeout(sockfd, 10);
-  
-    printf("s_addr: %d\n", cliaddr.sin_addr.s_addr);
-    printf("s_port: %d\n", ntohs(cliaddr.sin_port));
-
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, (socklen_t *)&len); 
-    buffer[n] = '\0'; 
-
-    printf("s_addr: %d\n", cliaddr.sin_addr.s_addr);
-    printf("s_port: %d\n", ntohs(cliaddr.sin_port));
-
-    printf("Client : %s\n", buffer); 
-    sendto(sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
-    printf("Hello message sent.\n");  
-      
-    return 0; 
-}
-*/
-
-
-int server_recv(int port){
+int server_loop(int port){
     int sockfd; 
     char buffer[MAXLINE]; 
     struct sockaddr_in servaddr, cliaddr; 
@@ -96,54 +47,12 @@ int server_recv(int port){
       
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-      
-    //memset(&servaddr, 0, sizeof(servaddr)); 
-    //memset(&cliaddr, 0, sizeof(cliaddr)); 
-    
     sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", port);  
-      /*
-    // Filling server information 
-    servaddr.sin_family    = AF_INET; // IPv4 
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    servaddr.sin_port = htons(port); 
-      */
-
 
     // Bind the socket with the server address 
     if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
 
-/*
-    int len, n; 
-  
-    len = sizeof(cliaddr);  //len is value/resuslt 
-*/
     while(1){
-
-        /*
-        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, (socklen_t *)&len); 
-        //buffer[n] = '\0'; 
-
-        uint call_len;
-        m = marshal.unmarshalMessage((unsigned char *)buffer, &call_len);
-        m.print();
-        //Call c = m.unmarshalCall((unsigned char *)buffer, &call_len);
-        //c.print();
-
-        //now we send our response
-        //Response r = Response(Read, Good, "abcdefghij");
-        //uint stream_len;
-        //byte_stream = m.marshalResponse(r, &stream_len);
-        //m = Message(Response, Read, {Good}, {"abcdefghij"});
-        m = Message(AckType, Ack, {}, {});
-        uint stream_len;
-        byte_stream = marshal.marshalMessage(m, &stream_len);
-
-
-        sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
-        printf("Message sent to client.\n");  
-        free(byte_stream);
-        */
-
         //clear out old client info        
         memset(&cliaddr, 0, sizeof(cliaddr));
 
@@ -158,24 +67,6 @@ int server_recv(int port){
         //sender.sendMessage(m, sockfd, &cliaddr);
 
     }
-
-/*
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, (socklen_t *)&len); 
-    //buffer[n] = '\0'; 
-
-    uint call_len;
-    Call c = m.unmarshalCall((unsigned char *)buffer, &call_len);
-    c.print();
-
-    //now we send our response
-    Response r = Response(Read, Good, "abcdefghij");
-    uint stream_len;
-    byte_stream = m.marshalResponse(r, &stream_len);
-
-    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
-    printf("Message sent to client.\n");  
-    free(byte_stream);
-      */
     return 0; 
 }
 
@@ -185,5 +76,5 @@ int main() {
 
     printf("This is the Server\n");
 
-    server_recv(8080);
+    server_loop(8080);
 } 

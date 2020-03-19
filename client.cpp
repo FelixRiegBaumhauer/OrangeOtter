@@ -1,98 +1,24 @@
 #include "client.h"
-  
-#define MAXLINE 1024 
-  
-/*
-int client_send(int port){
-    int sockfd; 
-    char buffer[MAXLINE]; 
-    char *hello = "Hello from client"; 
-    struct sockaddr_in servaddr, cliaddr;
 
-    short client_port = 8081;
-  
-    // Creating socket file descriptor 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-  
-    memset(&servaddr, 0, sizeof(servaddr)); 
-      
-    // Filling server information 
-    servaddr.sin_family = AF_INET; 
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    servaddr.sin_port = htons(port); 
-
-
-    memset(&cliaddr, 0, sizeof(cliaddr)); 
-      
-    // Filling server information 
-    cliaddr.sin_family    = AF_INET; // IPv4 
-    cliaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    cliaddr.sin_port = htons(client_port); 
-      
-    // Bind the socket with the client address 
-    if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
-
-
-    int n, len; 
-      
-    sendto(sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
-    printf("Hello message sent.\n"); 
-          
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &servaddr, (socklen_t *) &len); 
-    buffer[n] = '\0'; 
-    printf("Server : %s\n", buffer); 
-  
-    close(sockfd); 
-    return 0; 
-}
-*/
-
-
-int client_send(int port){
-    return 0;
-}
 
 int client_loop(int server_port, int client_port){
-
     std::string inputText;
 
-
     unsigned char * byte_stream;
-    //Marshal marshal;
     Sender sender;
     Message m;
-
     int sockfd; 
-    char buffer[MAXLINE];
     struct sockaddr_in servaddr, cliaddr;
-    //short client_port;
 
 
     std::cout << "Establishing Connection" << std::endl;
 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-
     sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", server_port);
     sender.populateRemoteSockAddr(&cliaddr, "127.0.0.1", client_port);
 
     std::cout << "Connection Established" << std::endl;
 
-/*
-    memset(&servaddr, 0, sizeof(servaddr)); 
-      
-    // Filling server information 
-    servaddr.sin_family = AF_INET; 
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    servaddr.sin_port = htons(port); 
-
-
-    memset(&cliaddr, 0, sizeof(cliaddr)); 
-      
-    // Filling server information 
-    cliaddr.sin_family    = AF_INET; // IPv4 
-    cliaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
-    cliaddr.sin_port = htons(client_port); 
-*/
 
     // Bind the socket with the client address 
     if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
@@ -189,32 +115,6 @@ int client_loop(int server_port, int client_port){
           std::cout << "Exiting Program" << std::endl;
           return 0;
         }
-
-
-/*
-        uint stream_len;
-        //byte_stream = m.marshalCall(c, &stream_len);
-        byte_stream = marshal.marshalMessage(m, &stream_len);
-
-        //now send it out
-
-        sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
-        printf("Message sent to server\n"); 
-        free(byte_stream);
-
-        int n,len;
-
-        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &servaddr, (socklen_t *) &len); 
-        //buffer[n] = '\0'; 
-
-        uint call_len;
-        m = marshal.unmarshalMessage((unsigned char *)buffer, &call_len);
-        m.print();
-        //Response r = m.unmarshalResponse((unsigned char *)buffer, &call_len);
-        //r.print();
-
-        //printf("Server : %s\n", buffer);
-        */
 
         sender.sendMessage(m, sockfd, &servaddr);
 

@@ -55,7 +55,6 @@ int Sender::recvMessage(Message * m, int sockfd,  struct sockaddr_in * sa){
     Message ack;
 
     struct sockaddr_in cliaddr1;
-    //memset(&cliaddr, 0, sizeof(cliaddr));
 
     len = sizeof(*sa);
 

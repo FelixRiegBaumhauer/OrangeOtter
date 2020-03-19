@@ -31,7 +31,8 @@ public:
 	void populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int port);
 
 	int sendMessage(Message m, int sockfd, struct sockaddr_in *sa);
-	//int recvMessage(Message * m, int sockfd, struct sockaddr_in *sa);
+
+	//for the recving message we assume that it is zeroed out 
 	int recvMessage(Message * m, int sockfd, struct sockaddr_in *sa);
 
 
