@@ -232,8 +232,8 @@ unsigned char * Marshal::marshalMessage(Message m, uint * len){
 	uint i;
 
 
-	//Structure of a Call as byte string is as follows
-	// {size, type, [int args], [str args]}
+	//Structure of a Message as byte string is as follows
+	// {size, MessageType, CallType [int args], [str args]}
 	// The int and string args are packaged as follows
 	// {num elements [elements]}
 	//
