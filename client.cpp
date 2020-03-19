@@ -8,7 +8,7 @@ int client_loop(int server_port, int client_port){
     Sender sender;
     Message m;
     int sockfd; 
-    struct sockaddr_in servaddr, cliaddr;
+    struct sockaddr_in servaddr, cliaddr, dummyaddr;
 
 
     std::cout << "Establishing Connection" << std::endl;
@@ -117,6 +117,16 @@ int client_loop(int server_port, int client_port){
         }
 
         sender.sendMessage(m, sockfd, &servaddr);
+
+        //now we wait for our response
+
+        memset(&dummyaddr, 0, sizeof(cliaddr));
+        sender.recvMessage(&m, sockfd, &cliaddr);
+
+        //and we return our response to the screen
+        m.print();
+
+
 
     }
 }

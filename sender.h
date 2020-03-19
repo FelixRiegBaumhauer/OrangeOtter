@@ -18,7 +18,12 @@
 #include "marshal.h"
 
 
-#define MAXLINE 1024 
+#define MAXLINE 1024
+#define INIT_PACKET_SIZE 38
+#define INT_SIZE 4
+
+#define TIMEOUT_DURATION 10
+#define NUM_TIMEOUTS 3
 
 
 
@@ -27,6 +32,9 @@ public:
 
 	Marshal marshal;
 
+	//returns the number of packets waiting and waits up to seconds seconds of time
+	int input_timeout (int filedes, unsigned int seconds);
+
 	void populateLocalSockAddr(struct sockaddr_in *sa);
 	void populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int port);
 
@@ -34,6 +42,11 @@ public:
 
 	//for the recving message we assume that it is zeroed out 
 	int recvMessage(Message * m, int sockfd, struct sockaddr_in *sa);
+
+	//reads in chunks for big messages returns number of bytes read
+	int recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa);
+
+
 
 
 };

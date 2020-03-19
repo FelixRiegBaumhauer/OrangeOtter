@@ -223,6 +223,10 @@ uint Marshal::unpackageInts(unsigned char * src, std::vector<uint> * dest){
 	return bytes_writen;
 }
 
+uint Marshal::getMarshalLength(unsigned char * buf){
+	return charToInt(buf);
+}
+
 unsigned char * Marshal::marshalMessage(Message m, uint * len){
 	uint uint_size = sizeof(uint);
 	uint size;

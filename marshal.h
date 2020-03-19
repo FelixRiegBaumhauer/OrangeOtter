@@ -50,6 +50,8 @@ public:
 	unsigned char * marshalMessage(Message m, uint * len);
 	Message unmarshalMessage(unsigned char * buf_stream, uint * len);
 
+	uint getMarshalLength(unsigned char * buf);
+
 	uint packageStrings(std::vector<std::string> src, unsigned char * dest);
 	uint unpackageStrings(unsigned char * src, std::vector<std::string> * dest);
 

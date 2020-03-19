@@ -11,8 +11,6 @@
 
 #include "server.h"
   
-#define PORT     8080 
-#define MAXLINE 1024 
   
 int input_timeout (int filedes, unsigned int seconds)
 {
@@ -38,10 +36,8 @@ int input_timeout (int filedes, unsigned int seconds)
 
 int server_loop(int port){
     int sockfd; 
-    char buffer[MAXLINE]; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
-    Marshal marshal;
     Message m;
     Sender sender;
       
@@ -64,7 +60,7 @@ int server_loop(int port){
         //after we act on the message we send a return
         m  = Message(Response, Read, {}, {"ABCDEF"});
 
-        //sender.sendMessage(m, sockfd, &cliaddr);
+        sender.sendMessage(m, sockfd, &cliaddr);
 
     }
     return 0; 
