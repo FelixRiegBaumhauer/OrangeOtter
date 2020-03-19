@@ -88,35 +88,38 @@ int server_recv(int port){
 int server_recv(int port){
     int sockfd; 
     char buffer[MAXLINE]; 
-    char *hello = "Hello from server"; 
     struct sockaddr_in servaddr, cliaddr; 
-
     unsigned char * byte_stream;
-
-
     Marshal marshal;
     Message m;
+    Sender sender;
       
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
       
-    memset(&servaddr, 0, sizeof(servaddr)); 
-    memset(&cliaddr, 0, sizeof(cliaddr)); 
-      
+    //memset(&servaddr, 0, sizeof(servaddr)); 
+    //memset(&cliaddr, 0, sizeof(cliaddr)); 
+    
+    sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", port);  
+      /*
     // Filling server information 
     servaddr.sin_family    = AF_INET; // IPv4 
     servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //INADDR_ANY; 
     servaddr.sin_port = htons(port); 
-      
+      */
+
+
     // Bind the socket with the server address 
     if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
 
-
+/*
     int len, n; 
   
     len = sizeof(cliaddr);  //len is value/resuslt 
-
+*/
     while(1){
+
+        /*
         n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, (socklen_t *)&len); 
         //buffer[n] = '\0'; 
 
@@ -139,6 +142,21 @@ int server_recv(int port){
         sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
         printf("Message sent to client.\n");  
         free(byte_stream);
+        */
+
+        //clear out old client info        
+        memset(&cliaddr, 0, sizeof(cliaddr));
+
+        sender.recvMessage(&m, sockfd, &cliaddr);
+
+        //now we act on the message
+        m.print();
+
+        //after we act on the message we send a return
+        m  = Message(Response, Read, {}, {"ABCDEF"});
+
+        //sender.sendMessage(m, sockfd, &cliaddr);
+
     }
 
 /*
