@@ -19,6 +19,21 @@
 #include "sender.h"
 
 
+class Client{
+public:
+	uint num;
+
+	void updateNum();
+	uint getNum();
+
+	Client();
+	int client_loop(int server_port, int client_port);
+
+
+
+
+};
+
 
 
 #endif

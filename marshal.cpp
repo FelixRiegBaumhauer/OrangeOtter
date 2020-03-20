@@ -1,8 +1,6 @@
 #include "marshal.h"
 
 
-
-
 void Marshal::intToChar(uint src, unsigned char * dest){
 	uint i;
 	uint uint_size = sizeof(uint);
@@ -11,6 +9,7 @@ void Marshal::intToChar(uint src, unsigned char * dest){
 		dest[i] = src >> (uint_size - i - 1)*BITS_IN_BYTE;
 	}
 }
+
 int Marshal::charToInt(unsigned char * src){
 	uint i, result;
 
@@ -19,7 +18,6 @@ int Marshal::charToInt(unsigned char * src){
 	uint uint_size = sizeof(uint);
 	uint char_size = sizeof(unsigned char);
 	for(i=0; i<uint_size; i++){
-
 		result = result << (BITS_IN_BYTE);
 		result |= src[i];
 	}
@@ -155,6 +153,7 @@ uint Marshal::packageStrings(std::vector<std::string> src, unsigned char * dest)
 
 	return bytes_writen;
 }
+
 uint Marshal::unpackageStrings(unsigned char * src, std::vector<std::string> * dest){
 	uint bytes_writen = 0;
 	uint num_strs;
@@ -200,6 +199,7 @@ uint Marshal::packageInts(std::vector<uint> src, unsigned char * dest){
 
 	return bytes_writen;
 }
+
 uint Marshal::unpackageInts(unsigned char * src, std::vector<uint> * dest){
 	uint bytes_writen = 0;
 	uint num_ints;
@@ -235,13 +235,7 @@ unsigned char * Marshal::marshalMessage(Message m, uint * len){
 	uint str_space;
 	uint i;
 
-
-	//Structure of a Message as byte string is as follows
-	// {size, MessageType, CallType [int args], [str args]}
-	// The int and string args are packaged as follows
-	// {num elements [elements]}
-	//
-	size = 3*uint_size;
+	size = 4*uint_size;
 	size += intsLength(m.intArgs);
 	size += stringsLength(m.strArgs);
 
@@ -253,7 +247,8 @@ unsigned char * Marshal::marshalMessage(Message m, uint * len){
 	pos += uint_size;
 	intToChar(m.callType, buf_stream+pos);
 	pos += uint_size;
-
+	intToChar(m.num, buf_stream+pos);
+	pos += uint_size;
 
 	str_space = packageInts(m.intArgs, buf_stream+pos);
 	pos += str_space;
@@ -277,6 +272,7 @@ Message Marshal::unmarshalMessage(unsigned char * buf_stream, uint * len){
 	CallType callType;
 	std::vector<uint> intArgs;
 	std::vector<std::string> strArgs;
+	uint num;
 
 	//no real need for this
 	size = charToInt(buf_stream+pos);
@@ -285,7 +281,8 @@ Message Marshal::unmarshalMessage(unsigned char * buf_stream, uint * len){
 	pos += uint_size;
 	callType = (CallType)charToInt(buf_stream+pos);
 	pos += uint_size;
-
+	num = (uint)charToInt(buf_stream+pos);
+	pos += uint_size;
 
 	str_space = unpackageInts(buf_stream+pos, &intArgs);
 	pos += str_space;
@@ -293,7 +290,7 @@ Message Marshal::unmarshalMessage(unsigned char * buf_stream, uint * len){
 	str_space = unpackageStrings(buf_stream+pos, &strArgs);
 	pos += str_space;
 
-	Message m = Message(messageType, callType, intArgs, strArgs);
+	Message m = Message(messageType, callType, num, intArgs, strArgs);
 
 	*len = pos;
 
@@ -342,16 +339,18 @@ int main(){
 */
 
 
-Message::Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs){
+Message::Message(MessageType type, CallType callType, uint num, std::vector<uint> intArgs, std::vector<std::string> strArgs){
 	this->type = type;
 	this->callType = callType;
+	this->num = num;
 	this->intArgs = intArgs;
 	this->strArgs = strArgs;
 }
 
 Message::Message(){
-	this->type = AckType;
-	this->callType = Ack;
+	this->type = Call;
+	this->callType = Read;
+	this->num = 0;
 	this->intArgs = {};
 	this->strArgs = {};
 }
@@ -366,8 +365,6 @@ void Message::print(){
 			break;
 		case Response: messageType = "Response";
 			break;
-		case AckType: messageType = "Ack Type";
-			break;
 	}
 
 	switch(callType){
@@ -381,10 +378,8 @@ void Message::print(){
 			break;
 		case Mode: responseType = "Mode";
 			break;
-		case Ack: responseType = "Ack";
-			break;
 	}
-	std::cout << "Message Type: " << messageType << " Call Type: " << responseType << " ";
+	std::cout << "Message Type: " << messageType << " Call Type: " << responseType << " Number: " << num << " ";
 	std::cout << "Int args:";
 	for(i=0; i<intArgs.size(); i++){
 		std::cout << " " << intArgs[i];

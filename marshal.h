@@ -14,14 +14,13 @@ typedef enum call_type {
 	Monitor = 2, 
 	Shift = 3, 
 	Mode = 4,
-	Ack = 5
+	MonitorUpdate = 5
 } CallType;
 
 
 typedef enum message_type {
 	Call = 0,
-	Response = 1,
-	AckType = 2
+	Response = 1
 } MessageType;
 
 
@@ -36,11 +35,12 @@ class Message{
 public:
 	MessageType type;
 	CallType callType;
+	uint num;
 	std::vector<uint> intArgs;
 	std::vector<std::string> strArgs;	
 
 	Message();
-	Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs);
+	Message(MessageType type, CallType callType, uint num, std::vector<uint> intArgs, std::vector<std::string> strArgs);
 	void print();
 };
 

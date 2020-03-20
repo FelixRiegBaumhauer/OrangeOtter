@@ -11,6 +11,16 @@
 
 #include "server.h"
   
+
+
+void Server::updateNum(){
+    num++;
+}
+uint Server::getNum(){
+    return num;
+}
+
+
   
 int input_timeout (int filedes, unsigned int seconds)
 {
@@ -34,7 +44,7 @@ int input_timeout (int filedes, unsigned int seconds)
 
 }
 
-int server_loop(int port){
+int Server::server_loop(int port){
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
@@ -70,11 +80,14 @@ int server_loop(int port){
 
         m = sender.recvMessage(sockfd, &cliaddr);
 
+        //check if this message is in our mao, then we either discard or proceed
+
         //now we act on the message
         m.print();
 
         //after we act on the message we send a return
-        m  = Message(Response, Read, {}, {"ABCDEF"});
+        m  = Message(Response, Read, getNum(), {}, {"ABCDEF"});
+        updateNum();
 
         sender.sendResponse(m, sockfd, &cliaddr);
 
@@ -83,11 +96,17 @@ int server_loop(int port){
     return 0; 
 }
 
+Server::Server(){
+    num = 0;
+}
+
 
 // Driver code 
 int main() { 
 
+    Server server;
+
     printf("This is the Server\n");
 
-    server_loop(8080);
+    server.server_loop(8080);
 } 

@@ -1,7 +1,16 @@
 #include "client.h"
 
 
-int client_loop(int server_port, int client_port){
+
+void Client::updateNum(){
+    num++;
+}
+
+uint Client::getNum(){
+    return num;
+}
+
+int Client::client_loop(int server_port, int client_port){
     std::string inputText;
 
     unsigned char * byte_stream;
@@ -47,7 +56,8 @@ int client_loop(int server_port, int client_port){
 
             std::cout <<  "read" << std::endl; 
 
-            m = Message(Call, Read, {offset, num}, {filepath});
+            m = Message(Call, Read, getNum(), {offset, num}, {filepath});
+            updateNum();
         }
 
         if(inputText.compare("insert") == 0){
@@ -64,7 +74,8 @@ int client_loop(int server_port, int client_port){
 
             std::cout <<  "insert" << std::endl;
 
-            m = Message(Call, Insert, {offset}, {filepath, bytes});
+            m = Message(Call, Insert, getNum(), {offset}, {filepath, bytes});
+            updateNum();
         }
 
         if(inputText.compare("monitor") == 0){
@@ -81,7 +92,8 @@ int client_loop(int server_port, int client_port){
 
             std::cout << "monitor" << std::endl;
 
-            m = Message(Call, Monitor, {duration, clientId}, {filepath});
+            m = Message(Call, Monitor, getNum(), {duration, clientId}, {filepath});
+            updateNum();
         }
 
         if(inputText.compare("mode") == 0){
@@ -92,7 +104,8 @@ int client_loop(int server_port, int client_port){
 
             std::cout <<  "mode" << std::endl;
 
-            m = Message(Call, Mode, {}, {filepath});
+            m = Message(Call, Mode, getNum(), {}, {filepath});
+            updateNum();
         }
 
         if(inputText.compare("shift") == 0){
@@ -106,7 +119,8 @@ int client_loop(int server_port, int client_port){
 
             std::cout <<  "shift" << std::endl;
 
-            m = Message(Call, Shift, {direction}, {filepath});
+            m = Message(Call, Shift, getNum(), {direction}, {filepath});
+            updateNum();
         }
 
 
@@ -133,11 +147,17 @@ int client_loop(int server_port, int client_port){
     }
 }
 
+Client::Client(){
+    num = 0;
+}
+
 
 // Driver code 
 int main() { 
 
+    Client client;
+
     printf("This is the Client\n");
 
-    client_loop(8080, 8081);
+    client.client_loop(8080, 8081);
 } 

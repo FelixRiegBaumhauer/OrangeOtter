@@ -55,12 +55,11 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 
     byte_stream = marshal.marshalMessage(call, &stream_len);
 
-    //the idea of this do while loop is to check if we have an ack waiting, 
+    //the idea of this do while loop is to check if we have an response waiting, 
     i = 0;
     do{
 	    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
 	    packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
-	    //test if packets waiting is -1 then error out
 
 	    i+=1;
     } while(packets_waiting == 0 && i < NUM_TIMEOUTS);
@@ -71,7 +70,6 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     free(byte_stream);
     
     n = recvWholeStream(sockfd, (char **)&byte_stream, sa);
-	//n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) sa, (socklen_t *) &len);
     resp = marshal.unmarshalMessage((unsigned char *)byte_stream, &resp_len);
     return resp;
 }
@@ -80,10 +78,8 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 //this just recives and marshalles it up
 Message Sender::recvMessage(int sockfd,  struct sockaddr_in * sa){
     char * buf;
-    //unsigned char * byte_stream;
-    int len, n; //, i;
-    uint call_len; //stream_len, call_len;
-    //Message ack;
+    int len, n; 
+    uint call_len; 
     Message m;
 
     len = sizeof(*sa);
@@ -98,9 +94,8 @@ Message Sender::recvMessage(int sockfd,  struct sockaddr_in * sa){
 int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
     char * buf;
     unsigned char * byte_stream;
-    int len, n; //, i;
-    uint stream_len; //, call_len;
-    //Message ack;
+    int len, n; 
+    uint stream_len;
 
     len = sizeof(*sa);
     byte_stream = marshal.marshalMessage(m, &stream_len);
@@ -109,80 +104,6 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
 
     return 0;
 }
-
-
-/*
-int Sender::sendMessage(Message m, int sockfd, struct sockaddr_in *sa){
-	unsigned char * byte_stream;
-	uint stream_len, ack_len;
-    int n, len, packets_waiting, i;
-
-    char buffer [MAXLINE];
-    Message ack;
-
-
-    byte_stream = marshal.marshalMessage(m, &stream_len);
-
-    //the idea of this do while loop is to check if we have an ack waiting, 
-    i = 0;
-    do{
-	    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
-	    packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
-	    //test if packets waiting is -1 then error out
-
-	    i+=1;
-    } while(packets_waiting == 0 && i < NUM_TIMEOUTS);
-    if(i == NUM_TIMEOUTS){
-    	printf("TIMEOUT ERROR\n");
-    	return 1;
-    }
-    free(byte_stream);
-    
-//
-//    //now send it out, 
-//    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
-//    free(byte_stream);
-//
-	n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) sa, (socklen_t *) &len);
-    ack = marshal.unmarshalMessage((unsigned char *)buffer, &ack_len);
-    //here we would check the Ack
-    if(ack.callType != Ack || ack.type != AckType){
-    	printf("Ack error\n");
-    	return 1;
-    }
-
-    return 0;
-}
-
-
-//we must assume that cliaddr has been wiped clean for us
-int Sender::recvMessage(Message * m, int sockfd,  struct sockaddr_in * sa){
-    //char buffer[MAXLINE]; 
-    char * buf;
-    unsigned char * byte_stream;
-    int len, n, i;
-    uint stream_len, call_len;
-    Message ack;
-    struct sockaddr_in cliaddr1;
-
-    len = sizeof(*sa);
-
-    n = recvWholeStream(sockfd, &buf, sa);
-    *m = marshal.unmarshalMessage((unsigned char *)buf, &call_len);
-    free(buf);
-
-    ack = Message(AckType, Ack, {}, {});
-    byte_stream = marshal.marshalMessage(ack, &stream_len);
-
-
-    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, len); 
-    free(byte_stream);
-
-    return 0;
-}
-*/
-
-//TO BE CONTINUED
 
 int Sender::recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa){
 	int len, n, i;
@@ -199,7 +120,6 @@ int Sender::recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa){
 
 	//now read the whole packet
 	n = recvfrom(sockfd, (char *)temp_buf, byte_len, MSG_WAITALL, ( struct sockaddr *) sa, (socklen_t *)&len);
-
 	*buf = temp_buf;
 	return n;
 }

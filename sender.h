@@ -17,11 +17,7 @@
 
 #include "marshal.h"
 
-
-#define MAXLINE 1024
-#define INIT_PACKET_SIZE 38
 #define INT_SIZE 4
-
 #define TIMEOUT_DURATION 10
 #define NUM_TIMEOUTS 3
 
