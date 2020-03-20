@@ -49,6 +49,7 @@ int server_loop(int port){
     if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
 
     while(1){
+        /*
         //clear out old client info        
         memset(&cliaddr, 0, sizeof(cliaddr));
 
@@ -61,6 +62,22 @@ int server_loop(int port){
         m  = Message(Response, Read, {}, {"ABCDEF"});
 
         sender.sendMessage(m, sockfd, &cliaddr);
+        */
+
+
+        //clear out old client info        
+        memset(&cliaddr, 0, sizeof(cliaddr));
+
+        m = sender.recvMessage(sockfd, &cliaddr);
+
+        //now we act on the message
+        m.print();
+
+        //after we act on the message we send a return
+        m  = Message(Response, Read, {}, {"ABCDEF"});
+
+        sender.sendResponse(m, sockfd, &cliaddr);
+
 
     }
     return 0; 

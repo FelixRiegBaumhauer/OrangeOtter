@@ -38,10 +38,19 @@ public:
 	void populateLocalSockAddr(struct sockaddr_in *sa);
 	void populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int port);
 
+
+	Message sendMessage(Message call, int sockfd, struct sockaddr_in *sa);
+	Message recvMessage(int sockfd,  struct sockaddr_in * sa);
+	int sendResponse(Message m, int sockfd,  struct sockaddr_in * sa);
+
+/*
 	int sendMessage(Message m, int sockfd, struct sockaddr_in *sa);
 
 	//for the recving message we assume that it is zeroed out 
 	int recvMessage(Message * m, int sockfd, struct sockaddr_in *sa);
+*/
+
+
 
 	//reads in chunks for big messages returns number of bytes read
 	int recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa);

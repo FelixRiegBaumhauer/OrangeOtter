@@ -116,13 +116,15 @@ int client_loop(int server_port, int client_port){
           return 0;
         }
 
+/*
         sender.sendMessage(m, sockfd, &servaddr);
 
         //now we wait for our response
 
         memset(&dummyaddr, 0, sizeof(cliaddr));
         sender.recvMessage(&m, sockfd, &cliaddr);
-
+*/
+        m = sender.sendMessage(m, sockfd, &servaddr);
         //and we return our response to the screen
         m.print();
 
