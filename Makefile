@@ -46,12 +46,14 @@ deep_clean:
 server: server.cpp server.h
 	$(CC) -c sender.cpp sender.h
 	$(CC) -c marshal.cpp marshal.h
-	$(CC) -o server marshal.o  sender.o server.cpp
+	$(CC) -c messageentry.cpp messageentry.h	
+	$(CC) -o server marshal.o sender.o messageentry.o server.cpp
 
 client: client.cpp client.h
 	$(CC) -c sender.cpp sender.h
 	$(CC) -c marshal.cpp marshal.h
-	$(CC) -o client marshal.o sender.o client.cpp
+	$(CC) -c messageentry.cpp messageentry.h
+	$(CC) -o client marshal.o sender.o messageentry.o client.cpp
 
 runner: tester.cpp
 	${CC} -c monitorentry.cpp monitorentry.h

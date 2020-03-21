@@ -16,10 +16,11 @@
 
 #include "marshal.h"
 #include "sender.h"
-
+#include "messageentry.h"
 
 class Server{
 public:
+	std::vector<MessageEntry> messageMap;
 	//need to add the ds for filtering
 	uint num;
 
@@ -28,7 +29,7 @@ public:
 
 	Server();
 	int server_loop(int port);
-
+	int checkMap(Message m, struct sockaddr_in cliaddr);
 };
 
 

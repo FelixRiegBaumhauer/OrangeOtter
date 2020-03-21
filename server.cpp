@@ -44,12 +44,32 @@ int input_timeout (int filedes, unsigned int seconds)
 
 }
 
+//return 1 if true, ie we have a collision
+int Server::checkMap(Message m, struct sockaddr_in cliaddr){
+    uint i = 0;
+    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
+
+    for(i=0; i<messageMap.size(); i++){
+        if( mEntry.compareTo(messageMap[i]) == 1){
+            return 1;
+        }
+    }
+
+    //in this case we had no hit, so we add it
+    messageMap.push_back(mEntry);
+
+    return 0;
+}
+
+
 int Server::server_loop(int port){
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
     Message m;
     Sender sender;
+
+
       
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
@@ -75,14 +95,11 @@ int Server::server_loop(int port){
         */
 
 
+/*
         //clear out old client info        
         memset(&cliaddr, 0, sizeof(cliaddr));
-
         m = sender.recvMessage(sockfd, &cliaddr);
 
-        //check if this message is in our mao, then we either discard or proceed
-
-        //now we act on the message
         m.print();
 
         //after we act on the message we send a return
@@ -90,7 +107,21 @@ int Server::server_loop(int port){
         updateNum();
 
         sender.sendResponse(m, sockfd, &cliaddr);
+*/
+        //check if this message is in our map, then we either discard or proceed
 
+        memset(&cliaddr, 0, sizeof(cliaddr));
+        m = sender.recvMessage(sockfd, &cliaddr);
+        if( checkMap(m, cliaddr)  == 0){
+
+            m.print();
+            //after we act on the message we send a return
+            m  = Message(Response, Read, getNum(), {}, {"ABCDEF"});
+            updateNum();
+            sender.sendResponse(m, sockfd, &cliaddr);
+        }else{
+            printf("DUPPLICATE PACKET\n");
+        }
 
     }
     return 0; 
