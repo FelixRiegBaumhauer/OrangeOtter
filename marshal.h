@@ -24,13 +24,6 @@ typedef enum message_type {
 } MessageType;
 
 
-typedef enum success_type {
-	Good = 0,
-	Failure = 1,
-	OtherFailure = 2
-} SuccessType;
-
-
 class Message{
 public:
 	MessageType type;

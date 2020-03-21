@@ -81,6 +81,7 @@ void FileSystem::checkFile(std::string filepath){
 
   int i;
   for(i=0; i<vec.size(); i++){
+    //send out each hit
     std::cout << "Send Out: " << vec[i].toString() << std::endl;
   }
 }

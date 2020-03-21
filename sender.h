@@ -21,7 +21,12 @@
 #define TIMEOUT_DURATION 10
 #define NUM_TIMEOUTS 3
 
-
+//this is for the responses
+typedef enum success_type {
+	Good = 0,
+	Failure = 1,
+	OtherFailure = 2
+} SuccessType;
 
 class Sender{
 public:

@@ -19,10 +19,12 @@
 #include "messageentry.h"
 //#include "cliententry.h"
 #include "clientmap.h"
+#include "filesystem.h"
 
 
 class Server{
 public:
+	FileSystem fs;
 	std::vector<MessageEntry> messageMap;
 	
 	ClientMap clientMap;
@@ -32,11 +34,12 @@ public:
 
 	void updateNum();
 	uint getNum();
+	uint getUpdateNum();
 
 	Server();
 	int server_loop(int port);
 	int checkMap(Message m, struct sockaddr_in cliaddr);
-	Message execute(Message call);
+	Message execute(Message call, uint clientNum);
 };
 
 

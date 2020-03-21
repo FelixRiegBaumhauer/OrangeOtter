@@ -6,11 +6,11 @@ make_tester: tester.cpp
 	${CC} -o tester tester.cpp
 
 make_fs: filesystem.cpp filesystem.h
-	g++  -std=c++11 -c filesystem.cpp
+	$(CC) -c filesystem.cpp filesystem.h
 
 make_monitor: monitorentry.cpp monitorentry.h monitortable.cpp monitortable.h
-	g++  -std=c++11 -c monitorentry.cpp
-	g++  -std=c++11 -c monitortable.cpp
+	$(CC) -c monitorentry.cpp monitorentry.h
+	$(CC) -c monitortable.cpp monitortable.h
 
 make_all: make_fs make_monitor tester.cpp
 	${CC} -o tester filesystem.o monitorentry.o monitortable.o tester.cpp
@@ -43,13 +43,14 @@ deep_clean:
 	@rm *~
 
 
-server: server.cpp server.h
+server: make_fs make_monitor server.cpp server.h
 	$(CC) -c sender.cpp sender.h
 	$(CC) -c marshal.cpp marshal.h
 	$(CC) -c messageentry.cpp messageentry.h
 	$(CC) -c cliententry.cpp cliententry.h	
-	$(CC) -c clientmap.cpp clientmap.h	
-	$(CC) -o server marshal.o sender.o messageentry.o cliententry.o clientmap.o server.cpp
+	$(CC) -c clientmap.cpp clientmap.h
+	$(CC) -c filesystem.cpp filesystem.h	
+	$(CC) -o server marshal.o sender.o messageentry.o cliententry.o clientmap.o filesystem.o monitorentry.o monitortable.o server.cpp
 
 client: client.cpp client.h
 	$(CC) -c sender.cpp sender.h
