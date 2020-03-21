@@ -34,7 +34,7 @@ std::string FileSystem::readFile(std::string filepath, int offset, int num){
 }
 
 
-void FileSystem::insertFile(std::string filepath, int offset, std::string bytes){
+std::vector<uint> FileSystem::insertFile(std::string filepath, int offset, std::string bytes){
   std::string tempHold, curLine;
   std::ifstream fileIn(filepath);
 
@@ -59,7 +59,7 @@ void FileSystem::insertFile(std::string filepath, int offset, std::string bytes)
   fileOut.close();
 
   //now we go ahead and monitor it
-  checkFile(filepath);
+  return checkFile(filepath);
 }
 
 
@@ -73,8 +73,9 @@ void FileSystem::printMt(){
   mt.print();
 }
 
-void FileSystem::checkFile(std::string filepath){
+std::vector<uint> FileSystem::checkFile(std::string filepath){
   std::vector<MonitorEntry> vec;
+  std::vector<uint> clientInts;
 
   //sweep is the method we use to 
   vec = mt.sweep(filepath);
@@ -83,7 +84,9 @@ void FileSystem::checkFile(std::string filepath){
   for(i=0; i<vec.size(); i++){
     //send out each hit
     std::cout << "Send Out: " << vec[i].toString() << std::endl;
+    clientInts.push_back(vec[i].clientId);
   }
+  return clientInts;
 }
 
 char FileSystem::getMode(std::string filepath){
@@ -123,7 +126,7 @@ char FileSystem::getMode(std::string filepath){
   return most_common;
 }
 
-void FileSystem::shiftFile(std::string filepath, int direction){
+std::vector<uint> FileSystem::shiftFile(std::string filepath, int direction){
   std::string tempHold, curLine;
   std::ifstream fileIn(filepath);
 
@@ -149,7 +152,7 @@ void FileSystem::shiftFile(std::string filepath, int direction){
 
 
   //now we monitor it
-  checkFile(filepath);
+  return checkFile(filepath);
 }
 
 std::string FileSystem::shiftString(std::string str, int direction){

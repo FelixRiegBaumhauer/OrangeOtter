@@ -11,12 +11,12 @@ class FileSystem{
 public:
   FileSystem();
   std::string readFile(std::string filepath, int offset, int num);
-  void insertFile(std::string filepath, int offset, std::string bytes);
+  std::vector<uint> insertFile(std::string filepath, int offset, std::string bytes);
   void monitorFile(std::string, int duration, int clientId);
   char getMode(std::string);
-  void shiftFile(std::string, int direction);
+  std::vector<uint> shiftFile(std::string, int direction);
 
-  void checkFile(std::string filepath);
+  std::vector<uint> checkFile(std::string filepath);
 
   void printMt();
 

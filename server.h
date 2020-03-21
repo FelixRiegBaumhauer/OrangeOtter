@@ -27,6 +27,8 @@ public:
 	FileSystem fs;
 	std::vector<MessageEntry> messageMap;
 	
+
+    Sender sender;
 	ClientMap clientMap;
 	//std::vector<ClientEntry> clientMap;
 	//need to add the ds for filtering
@@ -39,7 +41,8 @@ public:
 	Server();
 	int server_loop(int port);
 	int checkMap(Message m, struct sockaddr_in cliaddr);
-	Message execute(Message call, uint clientNum);
+	Message execute(int sockfd, Message call, uint clientNum);
+	void sendList(int sockfd, std::vector<uint> clientNums, std::string filepath);
 };
 
 

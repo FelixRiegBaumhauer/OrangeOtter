@@ -26,8 +26,27 @@ uint Server::getUpdateNum(){
     return tempNum;
 }
 
+void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string filepath){
+    uint i;
+    struct sockaddr_in cliaddr;
+
+
+    for(i=0; i<clientNums.size(); i++){
+        ClientEntry ce = clientMap.getClientEntry(clientNums[i]);
+
+        memset(&cliaddr, 0, sizeof(cliaddr)); 
+        cliaddr.sin_family = AF_INET; 
+        cliaddr.sin_addr.s_addr = ce.ip_addr;  
+        cliaddr.sin_port = ce.port; 
+
+        Message m = Message(Response, MonitorUpdate, getUpdateNum(), {}, {filepath});
+
+        sender.sendResponse(m, sockfd, &cliaddr);        
+    }
+}
+
 //this function has to execute the needed call
-Message Server::execute(Message call, uint clientNum){
+Message Server::execute(int sockfd, Message call, uint clientNum){
 
     //need to do appropriate checking here
     //for each case we call
@@ -62,7 +81,12 @@ Message Server::execute(Message call, uint clientNum){
             std::string filepath = call.strArgs[0];
             std::string bytes = call.strArgs[1];
 
-            fs.insertFile(filepath, offset, bytes);
+            std::vector<uint> clientNums;
+
+            clientNums = fs.insertFile(filepath, offset, bytes);
+
+            //send the monitor responses
+            sendList(sockfd, clientNums, filepath);
 
             respType = Response;
             respCallType = Insert;
@@ -85,8 +109,12 @@ Message Server::execute(Message call, uint clientNum){
         {
             uint direction = call.intArgs[0];
             std::string filepath = call.strArgs[0];
+            std::vector<uint> clientNums;
 
-            fs.shiftFile(filepath, direction);
+            clientNums = fs.shiftFile(filepath, direction);
+
+            //send the monitor responses
+            sendList(sockfd, clientNums, filepath);
 
             respType = Response;
             respCallType = Shift;
@@ -162,7 +190,6 @@ int Server::server_loop(int port){
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
     Message m;
-    Sender sender;
     uint clientNum; //this number is the current client that we are serving
 
 
@@ -188,7 +215,8 @@ int Server::server_loop(int port){
 
             m.print();
 
-            m = execute(m, clientNum);
+            //we should change this to a list that we then go through and send out
+            m = execute(sockfd, m, clientNum);
             
             //after we act on the message we send a return
             //m  = Message(Response, Read, getNum(), {}, {"ABCDEF"});

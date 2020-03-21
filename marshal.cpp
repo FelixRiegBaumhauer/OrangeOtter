@@ -378,6 +378,11 @@ void Message::print(){
 			break;
 		case Mode: responseType = "Mode";
 			break;
+		case MonitorUpdate: responseType = "Monitor Update";
+			break;
+		default: responseType = "Default";
+			break;
+
 	}
 	std::cout << "Message Type: " << messageType << " Call Type: " << responseType << " Number: " << num << " ";
 	std::cout << "Int args:";

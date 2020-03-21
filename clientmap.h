@@ -18,6 +18,7 @@ public:
 
 	uint findClientNum(struct sockaddr_in cliaddr);
 	ClientMap();
+	ClientEntry getClientEntry(uint ClientNum);
 };
 
 #endif

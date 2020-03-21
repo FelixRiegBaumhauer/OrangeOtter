@@ -27,8 +27,8 @@ clean_object:
 	@rm *.o
 
 clean: 
-	@rm *.o
 	@rm *.h.gch
+	@rm *.o
 	@rm client
 	@rm server
 
