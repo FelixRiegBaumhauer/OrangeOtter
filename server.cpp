@@ -20,6 +20,11 @@ uint Server::getNum(){
     return num;
 }
 
+//this function has to execute the needed call
+Message Server::execute(Message call){
+    Message resp;
+    return resp;
+}
 
   
 int input_timeout (int filedes, unsigned int seconds)
@@ -68,6 +73,7 @@ int Server::server_loop(int port){
     unsigned char * byte_stream;
     Message m;
     Sender sender;
+    uint clientNum; //this number is the current client that we are serving
 
 
       
@@ -79,39 +85,15 @@ int Server::server_loop(int port){
     if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
 
     while(1){
-        /*
-        //clear out old client info        
-        memset(&cliaddr, 0, sizeof(cliaddr));
-
-        sender.recvMessage(&m, sockfd, &cliaddr);
-
-        //now we act on the message
-        m.print();
-
-        //after we act on the message we send a return
-        m  = Message(Response, Read, {}, {"ABCDEF"});
-
-        sender.sendMessage(m, sockfd, &cliaddr);
-        */
-
-
-/*
-        //clear out old client info        
-        memset(&cliaddr, 0, sizeof(cliaddr));
-        m = sender.recvMessage(sockfd, &cliaddr);
-
-        m.print();
-
-        //after we act on the message we send a return
-        m  = Message(Response, Read, getNum(), {}, {"ABCDEF"});
-        updateNum();
-
-        sender.sendResponse(m, sockfd, &cliaddr);
-*/
         //check if this message is in our map, then we either discard or proceed
 
         memset(&cliaddr, 0, sizeof(cliaddr));
         m = sender.recvMessage(sockfd, &cliaddr);
+
+        clientNum = clientMap.findClientNum(cliaddr);
+
+        printf("Serving Client: %d\n", clientNum);
+
         if( checkMap(m, cliaddr)  == 0){
 
             m.print();
