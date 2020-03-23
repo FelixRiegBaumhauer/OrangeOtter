@@ -77,7 +77,7 @@ std::vector<uint> FileSystem::checkFile(std::string filepath){
   std::vector<MonitorEntry> vec;
   std::vector<uint> clientInts;
 
-  //sweep is the method we use to 
+  //sweep is the method we use to find hits
   vec = mt.sweep(filepath);
 
   int i;
@@ -188,6 +188,10 @@ std::string FileSystem::shiftString(std::string str, int direction){
 
   }
   return retStr;
+}
+
+uint FileSystem::findRemove(uint clientId){
+  return mt.findRemove(clientId);
 }
 
 

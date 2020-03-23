@@ -39,7 +39,7 @@ public:
 	uint getUpdateNum();
 
 	Server();
-	int server_loop(int port);
+	int server_loop(int port, in_addr_t serverIp);
 	int checkMap(Message m, struct sockaddr_in cliaddr);
 	Message execute(int sockfd, Message call, uint clientNum);
 	void sendList(int sockfd, std::vector<uint> clientNums, std::string filepath);

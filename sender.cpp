@@ -41,6 +41,13 @@ void Sender::populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int
     sa->sin_port = htons(port); 
 }
 
+void Sender::populateRemoteSockAddr(struct sockaddr_in *sa, in_addr_t host_ip, int port){
+    memset(sa, 0, sizeof(*sa)); 
+      
+    sa->sin_family = AF_INET; 
+    sa->sin_addr.s_addr = host_ip; //is allready in network order
+    sa->sin_port = htons(port); 
+}
 
 
 Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){

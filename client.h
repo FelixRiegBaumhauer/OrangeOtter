@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -22,13 +23,18 @@
 class Client{
 public:
 	uint num;
+    Sender sender;
 
 	void updateNum();
 	uint getNum();
 
 	Client();
-	int client_loop(int server_port, int client_port);
+	//int client_loop(int server_port, int client_port);
+	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);
 
+	void processResponse(Message m, int sockfd, struct sockaddr_in * sa);
+	void handleMonitor(Message m, int sockfd, struct sockaddr_in * sa);
+	int input_timeout (int filedes, unsigned int seconds);
 
 
 

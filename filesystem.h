@@ -18,6 +18,8 @@ public:
 
   std::vector<uint> checkFile(std::string filepath);
 
+  uint findRemove(uint clientId);
+
   void printMt();
 
 

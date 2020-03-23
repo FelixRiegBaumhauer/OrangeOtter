@@ -55,6 +55,10 @@ public:
 	void print();
 	std::vector<MonitorEntry> findAll(std::string fp);
 	std::vector<MonitorEntry> sweep(std::string fp);
+	uint findRemove(uint clientId);
+
+	//same as other but also cleans by removing the old entries
+	std::vector<MonitorEntry> sweepClean(std::string fp);
 
 };
 

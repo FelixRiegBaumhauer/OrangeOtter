@@ -380,6 +380,8 @@ void Message::print(){
 			break;
 		case MonitorUpdate: responseType = "Monitor Update";
 			break;
+		case MonitorEnd: responseType = "Monitor End";
+			break;
 		default: responseType = "Default";
 			break;
 

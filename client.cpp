@@ -10,11 +10,94 @@ uint Client::getNum(){
     return num;
 }
 
-int Client::client_loop(int server_port, int client_port){
+int Client::input_timeout (int filedes, unsigned int seconds)
+{
+    fd_set set;
+    struct timeval timeout;
+    int n;
+
+    /* Initialize the file descriptor set. */
+    FD_ZERO (&set);
+    FD_SET (filedes, &set);
+
+    /* Initialize the timeout data structure. */
+    timeout.tv_sec = seconds;
+    timeout.tv_usec = 0;
+
+    /* select returns 0 if timeout, 1 if input available, -1 if error. */
+    if((n = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) < 0){
+        printf("ERROR\n");
+    }
+    return n;
+}
+
+void Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
+    uint duration, diff;
+    int n;
+    time_t start_time, end_time, cur_time;
+    Message notification, resp;
+
+    std::cout << "handle Monitor" << std::endl;
+
+    duration = m.intArgs[1];
+
+    start_time = time(0);
+    end_time = start_time + duration;
+
+    std::cout << duration << std::endl;
+    std::cout << start_time << std::endl;
+    std::cout << end_time << std::endl;
+
+
+    while( (cur_time = time(0)) < end_time){
+        diff = end_time - cur_time;
+
+        //here we wait for packets to come in
+        n = input_timeout(sockfd, diff);
+        //need to do error checking
+
+        if(n > 0){
+            //now read messgae
+            notification = sender.recvMessage(sockfd, sa);
+            notification.print();
+        }
+    }
+
+    //now we have reached end
+    //need to send a special end monitor messgae
+    Message endCall = Message(Call, MonitorEnd, getNum(), {}, {});
+    updateNum();
+
+    resp = sender.sendMessage(endCall, sockfd, sa);
+
+    resp.print();
+
+
+
+
+
+
+}
+
+void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
+
+
+    //if we have a monitor we need to wait now
+    if(m.callType == Monitor){
+        std::cout << "Moni" << std::endl;
+        m.print();
+        handleMonitor(m, sockfd, sa);
+    }
+    else{
+        m.print();
+    }
+
+}
+
+int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip){
     std::string inputText;
 
     unsigned char * byte_stream;
-    Sender sender;
     Message m;
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr, dummyaddr;
@@ -23,8 +106,10 @@ int Client::client_loop(int server_port, int client_port){
     std::cout << "Establishing Connection" << std::endl;
 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-    sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", server_port);
-    sender.populateRemoteSockAddr(&cliaddr, "127.0.0.1", client_port);
+    sender.populateRemoteSockAddr(&cliaddr, client_ip, client_port);
+    sender.populateRemoteSockAddr(&servaddr, server_ip, server_port);
+    //sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", server_port);
+    //sender.populateRemoteSockAddr(&cliaddr, "127.0.0.1", client_port);
 
     std::cout << "Connection Established" << std::endl;
 
@@ -87,6 +172,7 @@ int Client::client_loop(int server_port, int client_port){
             std::cin >> filepath;
             std::cout << "Input the duration" << std::endl;
             std::cin >> duration;
+
             std::cout << "Input clientId" << std::endl;
             std::cin >> clientId;
 
@@ -131,8 +217,8 @@ int Client::client_loop(int server_port, int client_port){
         }
         
         m = sender.sendMessage(m, sockfd, &servaddr);
-        //and we return our response to the screen
-        m.print();
+
+        processResponse(m, sockfd, &servaddr);
 
 
 
@@ -146,10 +232,28 @@ Client::Client(){
 
 // Driver code 
 int main() { 
-
+    int clientPort, serverPort;
+    std::string clientIpStr, serverIpStr;
+    in_addr_t clientIp, serverIp;
+    const char * serverIpPtr;
     Client client;
 
     printf("This is the Client\n");
 
-    client.client_loop(8080, 8081);
+    std::cout << "Enter the desired Client Port number" << std::endl;
+    std::cin >> clientPort;
+
+    std::cout << "Enter the desired Server IP number" << std::endl;
+    std::cin >> serverIpStr;
+    serverIpPtr = serverIpStr.c_str();
+    serverIp = inet_addr(serverIpPtr);
+
+    std::cout << "Enter the desired Server Port number" << std::endl;
+    std::cin >> serverPort;  
+
+
+    clientIp = inet_addr("127.0.0.1");
+
+
+    client.client_loop(serverPort, clientPort, serverIp, clientIp);
 } 

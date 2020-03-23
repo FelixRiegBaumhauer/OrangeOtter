@@ -103,6 +103,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             respType = Response;
             respCallType = Monitor;
             respIntArgs.push_back(Good);
+            respIntArgs.push_back(duration);
             break;
         }
         case Shift:
@@ -137,6 +138,13 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             respStrArgs.push_back(result);
             break;
         }
+        case MonitorEnd:
+        {
+            fs.findRemove(clientNum);
+            respType = Response;
+            respCallType = MonitorEnd;
+            break;
+        }
 
     }
 
@@ -164,7 +172,6 @@ int input_timeout (int filedes, unsigned int seconds)
         printf("ERROR\n");
     }
     return n;
-
 }
 
 //return 1 if true, ie we have a collision
@@ -185,7 +192,7 @@ int Server::checkMap(Message m, struct sockaddr_in cliaddr){
 }
 
 
-int Server::server_loop(int port){
+int Server::server_loop(int port, in_addr_t serverIp){
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
@@ -196,7 +203,7 @@ int Server::server_loop(int port){
       
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
-    sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", port);  
+    sender.populateRemoteSockAddr(&servaddr, serverIp, port);  
 
     // Bind the socket with the server address 
     if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
@@ -237,10 +244,21 @@ Server::Server(){
 
 // Driver code 
 int main() { 
-
+    int serverPort;
+    std::string serverIpStr;
+    in_addr_t serverIp;
+    const char * serverIpPtr;
     Server server;
+
+    serverPort = 8080;
 
     printf("This is the Server\n");
 
-    server.server_loop(8080);
+    serverIpStr = "127.0.0.1";
+    serverIpPtr = serverIpStr.c_str();
+    serverIp = inet_addr(serverIpPtr);
+
+    std::cout << "Server hosted on Port: " << serverPort << " and IP address: " << serverIpStr << std::endl;
+
+    server.server_loop(serverPort, serverIp);
 } 

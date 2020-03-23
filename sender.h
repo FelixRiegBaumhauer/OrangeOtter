@@ -38,6 +38,7 @@ public:
 
 	void populateLocalSockAddr(struct sockaddr_in *sa);
 	void populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int port);
+	void populateRemoteSockAddr(struct sockaddr_in *sa, in_addr_t host_ip, int port);
 
 
 	Message sendMessage(Message call, int sockfd, struct sockaddr_in *sa);
