@@ -8,6 +8,35 @@ FileSystem::FileSystem(){
   //mt = MonitorTable();
 }
 
+time_t FileSystem::lastModification(std::string filepath){
+  struct stat buf;
+  const char *c;
+
+  c = filepath.c_str();
+  stat(c, &buf);
+  return buf.st_mtim.tv_sec;
+}
+
+std::string FileSystem::readWholeFile(std::string filepath){
+  std::string retStr, curLine;
+  std::ifstream fileIn(filepath);
+
+  //check if file exists and all
+  if(!fileIn.good()){  throw noFileException();  }
+
+  while (getline (fileIn, curLine)) {
+    retStr.append(curLine);
+    retStr.append("\n");
+  }
+  //delete the last /n
+  if(retStr.size() > 0){
+    retStr.pop_back();
+  }
+
+  fileIn.close(); 
+
+  return retStr;
+}
 
 std::string FileSystem::readFile(std::string filepath, int offset, int num){
   std::string retStr, curLine;

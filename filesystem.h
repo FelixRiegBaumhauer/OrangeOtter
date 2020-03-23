@@ -6,6 +6,10 @@
 #include "nofileexception.h"
 #include "fileboundexception.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
+
 
 class FileSystem{
 public:
@@ -21,6 +25,8 @@ public:
   uint findRemove(uint clientId);
 
   void printMt();
+  std::string readWholeFile(std::string filepath);
+  time_t lastModification(std::string filepath);
 
 
 private:
