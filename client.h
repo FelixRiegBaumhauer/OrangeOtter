@@ -33,7 +33,7 @@ public:
 	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);
 
 	void processResponse(Message m, int sockfd, struct sockaddr_in * sa);
-	void handleMonitor(Message m, int sockfd, struct sockaddr_in * sa);
+	Message handleMonitor(Message m, int sockfd, struct sockaddr_in * sa);
 	int input_timeout (int filedes, unsigned int seconds);
 
 

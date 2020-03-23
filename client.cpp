@@ -31,23 +31,15 @@ int Client::input_timeout (int filedes, unsigned int seconds)
     return n;
 }
 
-void Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
+Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
     uint duration, diff;
     int n;
     time_t start_time, end_time, cur_time;
     Message notification, resp;
 
-    std::cout << "handle Monitor" << std::endl;
-
     duration = m.intArgs[1];
-
     start_time = time(0);
     end_time = start_time + duration;
-
-    std::cout << duration << std::endl;
-    std::cout << start_time << std::endl;
-    std::cout << end_time << std::endl;
-
 
     while( (cur_time = time(0)) < end_time){
         diff = end_time - cur_time;
@@ -63,33 +55,43 @@ void Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
         }
     }
 
-    //now we have reached end
     //need to send a special end monitor messgae
     Message endCall = Message(Call, MonitorEnd, getNum(), {}, {});
     updateNum();
-
     resp = sender.sendMessage(endCall, sockfd, sa);
-
-    resp.print();
-
-
-
-
-
-
+    return resp;
 }
 
 void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
-
-
     //if we have a monitor we need to wait now
-    if(m.callType == Monitor){
-        std::cout << "Moni" << std::endl;
-        m.print();
-        handleMonitor(m, sockfd, sa);
-    }
-    else{
-        m.print();
+
+    switch(m.callType){
+        case Read: 
+            m.print();
+            break;
+        case Insert:
+            m.print(); 
+            break;
+        case Monitor:
+            m.print();
+            m = handleMonitor(m, sockfd, sa);
+            m.print();
+            break;
+        case Shift: 
+            m.print();
+            break;
+        case Mode: 
+            m.print();
+            break;
+        case MonitorUpdate:
+            m.print(); 
+            break;
+        case MonitorEnd:
+            m.print(); 
+            break;
+        default: 
+            break;
+
     }
 
 }
@@ -108,8 +110,6 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
     sender.populateRemoteSockAddr(&cliaddr, client_ip, client_port);
     sender.populateRemoteSockAddr(&servaddr, server_ip, server_port);
-    //sender.populateRemoteSockAddr(&servaddr, "127.0.0.1", server_port);
-    //sender.populateRemoteSockAddr(&cliaddr, "127.0.0.1", client_port);
 
     std::cout << "Connection Established" << std::endl;
 
@@ -173,12 +173,9 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
             std::cout << "Input the duration" << std::endl;
             std::cin >> duration;
 
-            std::cout << "Input clientId" << std::endl;
-            std::cin >> clientId;
-
             std::cout << "monitor" << std::endl;
 
-            m = Message(Call, Monitor, getNum(), {duration, clientId}, {filepath});
+            m = Message(Call, Monitor, getNum(), {duration}, {filepath});
             updateNum();
         }
 
