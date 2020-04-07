@@ -39,6 +39,7 @@ public:
 	Message(MessageType type, CallType callType, uint num, std::vector<uint> intArgs, std::vector<std::string> strArgs);
 	Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs);
 	void setNum(uint num);
+	uint getNum();
 	void print();
 };
 
