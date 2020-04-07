@@ -27,21 +27,9 @@ public:
 	FileSystem fs;
 	std::vector<MessageEntry> messageMap;
 	
-
     Sender sender;
 	ClientMap clientMap;
-	//std::vector<ClientEntry> clientMap;
-	
 
-/*
-	//need to add the ds for filtering
-	uint num;
-
-	void updateNum();
-	uint getNum();
-	uint getUpdateNum();
-*/
-	
 	Server();
 	int server_loop(int port, in_addr_t serverIp);
 	int checkMap(Message m, struct sockaddr_in cliaddr);

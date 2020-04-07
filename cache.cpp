@@ -2,37 +2,25 @@
 #include "cache.h"
 
 
-/*
-void Cache::updateNum(){
-    num++;
-}
-
-uint Cache::getNum(){
-    return num;
-}
-*/
-
 
 Cache::Cache(){
 	Sender s;
 	this->sender = &s;
-	//num = 10000;
 	this->t = 0;
 }
 
 
 Cache::Cache(Sender * sender){
 	this->sender = sender;
-	//num = 10000;
 	this->t = 0;
 }
 
 Cache::Cache(uint t, Sender * sender){
 	this->sender = sender;
-	//num = 10000;
 	this->t = t;
 }
 
+/*
 void Cache::add(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	std::string bytes;
 	Message call, resp;
@@ -57,10 +45,8 @@ void Cache::add(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 
 	//overwrite the file 
 	fs.overwriteFile(filepath, bytes);
-	//fs.insertFile(filepath, 0, bytes);
-
-
 }
+*/
 
 CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	Message call, resp;
@@ -77,10 +63,7 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 	CacheEntry ce = CacheEntry(time(0), filepath);
 	cacheMap.push_back(ce);
 	
-	//then copy over the file 
-	//call = Message(Call, Dump, getNum(), {}, {filepath});
-	//updateNum();
-
+	//then copy over the file
 	call = Message(Call, Dump, {}, {filepath});
 
 
@@ -88,7 +71,6 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 	bytes = resp.strArgs[0];
 
 	//overwrite the file 
-	//fs.insertFile(filepath, 0, bytes);
 	fs.overwriteFile(filepath, bytes);
 
 	return ce;
@@ -125,10 +107,6 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 
 	t_client = fs.lastModification(filepath);
-
-	//time_call = Message(Call, Fresh, getNum(), {}, {filepath});
-	//updateNum();
-
 	time_call = Message(Call, Fresh, {}, {filepath});
 
 
@@ -139,9 +117,6 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 		std::string bytes;
 
 		//the cache entry is invalid
-		//dump_call = Message(Call, Dump, getNum(), {}, {filepath});
-		//updateNum();
-
 		dump_call = Message(Call, Dump, {}, {filepath});
 
 
@@ -150,7 +125,6 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 		
 		//overwrite the file 
 		fs.overwriteFile(filepath, bytes);
-		//fs.insertFile(filepath, 0, bytes);
 	}	
 
 	//now we update our lastValidation value

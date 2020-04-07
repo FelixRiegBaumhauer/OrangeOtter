@@ -12,21 +12,6 @@
 #include "server.h"
   
 
-/*
-void Server::updateNum(){
-    num++;
-}
-uint Server::getNum(){
-    return num;
-}
-
-uint Server::getUpdateNum(){
-    uint tempNum = num;
-    num++;
-    return tempNum;
-}
-*/
-
 void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string filepath){
     uint i;
     struct sockaddr_in cliaddr;
@@ -40,10 +25,7 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
         cliaddr.sin_addr.s_addr = ce.ip_addr;  
         cliaddr.sin_port = ce.port; 
 
-        //Message m = Message(Response, MonitorUpdate, getUpdateNum(), {}, {filepath});
         Message m = Message(Response, MonitorUpdate, {}, {filepath});
-
-
         sender.sendResponse(m, sockfd, &cliaddr);        
     }
 }
@@ -172,13 +154,9 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 
             break;
         }
-
-
     }
 
-    //Message resp = Message(respType, respCallType, getUpdateNum(), respIntArgs, respStrArgs);
     Message resp = Message(respType, respCallType, respIntArgs, respStrArgs);
-
     return resp;
 }
 
@@ -256,8 +234,6 @@ int Server::server_loop(int port, in_addr_t serverIp){
             m = execute(sockfd, m, clientNum);
             
             //after we act on the message we send a return
-            //m  = Message(Response, Read, getNum(), {}, {"ABCDEF"});
-            //updateNum();
             sender.sendResponse(m, sockfd, &cliaddr);
         }else{
             printf("DUPPLICATE PACKET\n");
@@ -269,7 +245,6 @@ int Server::server_loop(int port, in_addr_t serverIp){
 }
 
 Server::Server(){
-    //num = 0;
 }
 
 

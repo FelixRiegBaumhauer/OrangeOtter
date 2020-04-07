@@ -25,16 +25,10 @@ public:
 	FileSystem fs;
 	std::vector<CacheEntry> cacheMap;
 
-	/*
-	uint num;
-	void updateNum();
-	uint getNum();
-	*/
-
 	Cache();
 	Cache(Sender * sender);
 	Cache(uint t, Sender * sender);
-	void add(std::string filepath, struct sockaddr_in servaddr, int sockfd);
+	//void add(std::string filepath, struct sockaddr_in servaddr, int sockfd);
 	CacheEntry findOrMake(std::string filepath, struct sockaddr_in servaddr, int sockfd);
 	void updateCache(std::string filepath, struct sockaddr_in servaddr, int sockfd);
 	int updateCacheTime(std::string filepath, time_t new_time);
