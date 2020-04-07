@@ -339,6 +339,14 @@ int main(){
 */
 
 
+Message::Message(MessageType type, CallType callType, std::vector<uint> intArgs, std::vector<std::string> strArgs){
+	this->type = type;
+	this->callType = callType;
+	this->num = 0;
+	this->intArgs = intArgs;
+	this->strArgs = strArgs;
+}
+
 Message::Message(MessageType type, CallType callType, uint num, std::vector<uint> intArgs, std::vector<std::string> strArgs){
 	this->type = type;
 	this->callType = callType;
