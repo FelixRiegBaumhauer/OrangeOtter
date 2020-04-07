@@ -2,6 +2,25 @@
 #include "sender.h"
 
 
+
+void Sender::updateNum(){
+    messageNum++;
+}
+uint Sender::getNum(){
+    return messageNum;
+}
+
+uint Sender::getUpdateNum(){
+    uint tempNum = messageNum;
+    messageNum++;
+    return tempNum;
+}
+
+
+Sender::Sender(){
+    messageNum = 500;
+}
+
   
 int Sender::input_timeout (int filedes, unsigned int seconds){
     fd_set set;
@@ -57,6 +76,11 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     //char buffer [MAXLINE];
     Message resp;
 
+
+    //first we update the message num
+    call.setNum(call.getNum() + getUpdateNum());
+
+
     //basic idea is that we first send a call, wait for response and then return that
 
 
@@ -103,6 +127,9 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
     unsigned char * byte_stream;
     int len, n; 
     uint stream_len;
+
+    //first we update the message num
+    m.setNum(m.getNum() + getUpdateNum());
 
     len = sizeof(*sa);
     byte_stream = marshal.marshalMessage(m, &stream_len);

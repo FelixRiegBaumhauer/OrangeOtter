@@ -39,9 +39,13 @@ client: fs marshal sender m_entry cache monitor client.cpp client.h
 
 
 all: server client
+	@mkdir cli
+	@cp client cli/client
+
 
 clean: 
 	@rm *.h.gch
 	@rm *.o
 	@rm client
 	@rm server
+	@rm -r cli

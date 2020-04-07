@@ -256,6 +256,7 @@ int Server::server_loop(int port, in_addr_t serverIp){
             sender.sendResponse(m, sockfd, &cliaddr);
         }else{
             printf("DUPPLICATE PACKET\n");
+            m.print();
         }
 
     }

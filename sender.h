@@ -32,6 +32,16 @@ class Sender{
 public:
 
 	Marshal marshal;
+	uint messageNum;
+
+	
+	Sender();
+
+	
+	void updateNum();
+	uint getNum();
+	uint getUpdateNum();
+
 
 	//returns the number of packets waiting and waits up to seconds seconds of time
 	int input_timeout (int filedes, unsigned int seconds);
