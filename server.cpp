@@ -12,7 +12,7 @@
 #include "server.h"
   
 
-
+/*
 void Server::updateNum(){
     num++;
 }
@@ -25,6 +25,7 @@ uint Server::getUpdateNum(){
     num++;
     return tempNum;
 }
+*/
 
 void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string filepath){
     uint i;
@@ -39,7 +40,9 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
         cliaddr.sin_addr.s_addr = ce.ip_addr;  
         cliaddr.sin_port = ce.port; 
 
-        Message m = Message(Response, MonitorUpdate, getUpdateNum(), {}, {filepath});
+        //Message m = Message(Response, MonitorUpdate, getUpdateNum(), {}, {filepath});
+        Message m = Message(Response, MonitorUpdate, {}, {filepath});
+
 
         sender.sendResponse(m, sockfd, &cliaddr);        
     }
@@ -173,7 +176,9 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 
     }
 
-    Message resp = Message(respType, respCallType, getUpdateNum(), respIntArgs, respStrArgs);
+    //Message resp = Message(respType, respCallType, getUpdateNum(), respIntArgs, respStrArgs);
+    Message resp = Message(respType, respCallType, respIntArgs, respStrArgs);
+
     return resp;
 }
 
@@ -264,7 +269,7 @@ int Server::server_loop(int port, in_addr_t serverIp){
 }
 
 Server::Server(){
-    num = 0;
+    //num = 0;
 }
 
 

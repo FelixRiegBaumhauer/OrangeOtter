@@ -24,14 +24,15 @@
 
 class Client{
 public:
-	uint num;
+	//uint num;
     Sender sender;
     Cache cache;
     FileSystem fs;
 
+/*
 	void updateNum();
 	uint getNum();
-
+*/
 	Client();
 	//int client_loop(int server_port, int client_port);
 	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);

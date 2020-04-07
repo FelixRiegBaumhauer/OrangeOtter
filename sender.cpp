@@ -78,7 +78,7 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 
 
     //first we update the message num
-    call.setNum(call.getNum() + getUpdateNum());
+    call.setNum(getUpdateNum());
 
 
     //basic idea is that we first send a call, wait for response and then return that
@@ -129,7 +129,7 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
     uint stream_len;
 
     //first we update the message num
-    m.setNum(m.getNum() + getUpdateNum());
+    m.setNum(getUpdateNum());
 
     len = sizeof(*sa);
     byte_stream = marshal.marshalMessage(m, &stream_len);

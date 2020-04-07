@@ -2,6 +2,7 @@
 #include "cache.h"
 
 
+/*
 void Cache::updateNum(){
     num++;
 }
@@ -9,14 +10,26 @@ void Cache::updateNum(){
 uint Cache::getNum(){
     return num;
 }
+*/
+
 
 Cache::Cache(){
-	num = 10000;
+	Sender s;
+	this->sender = &s;
+	//num = 10000;
 	this->t = 0;
 }
 
-Cache::Cache(uint t){
-	num = 10000;
+
+Cache::Cache(Sender * sender){
+	this->sender = sender;
+	//num = 10000;
+	this->t = 0;
+}
+
+Cache::Cache(uint t, Sender * sender){
+	this->sender = sender;
+	//num = 10000;
 	this->t = t;
 }
 
@@ -31,11 +44,14 @@ void Cache::add(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	cacheMap.push_back(ce);
 	
 	//then copy over the file 
-	//call = Message();
-	call = Message(Call, Dump, getNum(), {}, {filepath});
-	updateNum();
+	//call = Message(Call, Dump, getNum(), {}, {filepath});
+	//updateNum();
 
-	resp = sender.sendMessage(call, sockfd, &servaddr);
+
+	call = Message(Call, Dump, {}, {filepath});
+
+
+	resp = sender->sendMessage(call, sockfd, &servaddr);
 
 	bytes = resp.strArgs[0];
 
@@ -62,12 +78,13 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 	cacheMap.push_back(ce);
 	
 	//then copy over the file 
-	//call = Message();
+	//call = Message(Call, Dump, getNum(), {}, {filepath});
+	//updateNum();
 
-	call = Message(Call, Dump, getNum(), {}, {filepath});
-	updateNum();
+	call = Message(Call, Dump, {}, {filepath});
 
-	resp = sender.sendMessage(call, sockfd, &servaddr);
+
+	resp = sender->sendMessage(call, sockfd, &servaddr);
 	bytes = resp.strArgs[0];
 
 	//overwrite the file 
@@ -108,22 +125,27 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 
 	t_client = fs.lastModification(filepath);
-	//time_call = Message(); 
-	time_call = Message(Call, Fresh, getNum(), {}, {filepath});
-	updateNum();
 
-	time_resp = sender.sendMessage(time_call, sockfd, &servaddr);
+	//time_call = Message(Call, Fresh, getNum(), {}, {filepath});
+	//updateNum();
+
+	time_call = Message(Call, Fresh, {}, {filepath});
+
+
+	time_resp = sender->sendMessage(time_call, sockfd, &servaddr);
 	t_server = time_resp.intArgs[0];
 
 	if(t_client < t_server){
 		std::string bytes;
 
 		//the cache entry is invalid
-		//dump_call = Message();
-		dump_call = Message(Call, Dump, getNum(), {}, {filepath});
-		updateNum();
+		//dump_call = Message(Call, Dump, getNum(), {}, {filepath});
+		//updateNum();
 
-		dump_resp = sender.sendMessage(dump_call, sockfd, &servaddr);
+		dump_call = Message(Call, Dump, {}, {filepath});
+
+
+		dump_resp = sender->sendMessage(dump_call, sockfd, &servaddr);
 		bytes = dump_resp.strArgs[0];
 		
 		//overwrite the file 

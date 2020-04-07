@@ -1,7 +1,7 @@
 #include "client.h"
 
 
-
+/*
 void Client::updateNum(){
     num++;
 }
@@ -9,7 +9,7 @@ void Client::updateNum(){
 uint Client::getNum(){
     return num;
 }
-
+*/
 int Client::input_timeout (int filedes, unsigned int seconds)
 {
     fd_set set;
@@ -56,8 +56,11 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
     }
 
     //need to send a special end monitor messgae
-    Message endCall = Message(Call, MonitorEnd, getNum(), {}, {});
-    updateNum();
+    //Message endCall = Message(Call, MonitorEnd, getNum(), {}, {});
+    //updateNum();
+
+    Message endCall = Message(Call, MonitorEnd, {}, {});
+
     resp = sender.sendMessage(endCall, sockfd, sa);
     return resp;
 }
@@ -141,8 +144,10 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
             std::cout <<  "read" << std::endl; 
 
-            m = Message(Call, Read, getNum(), {offset, num}, {filepath});
-            updateNum();
+            //m = Message(Call, Read, getNum(), {offset, num}, {filepath});
+            //updateNum();
+
+            m = Message(Call, Read, {offset, num}, {filepath});
         }
 
         if(inputText.compare("insert") == 0){
@@ -159,8 +164,11 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
             std::cout <<  "insert" << std::endl;
 
-            m = Message(Call, Insert, getNum(), {offset}, {filepath, bytes});
-            updateNum();
+            //m = Message(Call, Insert, getNum(), {offset}, {filepath, bytes});
+            //updateNum();
+
+
+            m = Message(Call, Insert, {offset}, {filepath, bytes});
         }
 
         if(inputText.compare("monitor") == 0){
@@ -175,8 +183,10 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
             std::cout << "monitor" << std::endl;
 
-            m = Message(Call, Monitor, getNum(), {duration}, {filepath});
-            updateNum();
+            //m = Message(Call, Monitor, getNum(), {duration}, {filepath});
+            //updateNum();
+
+            m = Message(Call, Monitor, {duration}, {filepath});
         }
 
         if(inputText.compare("mode") == 0){
@@ -187,8 +197,11 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
             std::cout <<  "mode" << std::endl;
 
-            m = Message(Call, Mode, getNum(), {}, {filepath});
-            updateNum();
+            //m = Message(Call, Mode, getNum(), {}, {filepath});
+            //updateNum();
+
+
+            m = Message(Call, Mode, {}, {filepath});
         }
 
         if(inputText.compare("shift") == 0){
@@ -202,8 +215,11 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
             std::cout <<  "shift" << std::endl;
 
-            m = Message(Call, Shift, getNum(), {direction}, {filepath});
-            updateNum();
+            //m = Message(Call, Shift, getNum(), {direction}, {filepath});
+            //updateNum();
+        
+
+            m = Message(Call, Shift, {direction}, {filepath});
         }
 
 
@@ -236,8 +252,8 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 }
 
 Client::Client(){
-    num = 0;
-    cache = Cache(100);
+    //num = 0;
+    cache = Cache(100, &sender);
 }
 
 
