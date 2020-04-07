@@ -363,6 +363,10 @@ Message::Message(){
 	this->strArgs = {};
 }
 
+void Message::setNum(uint num){
+	this->num = num;
+}
+
 void Message::print(){
 	uint i;
 	std::string responseType;
