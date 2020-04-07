@@ -219,9 +219,19 @@ Client::Client(){
     cache = Cache(100, &sender);
 }
 
+Client::Client(ClientMode mode, float dropProb){
+    if(mode = DroppingClient){
+        sender = Sender(dropProb);
+    }
+
+    this->mode = mode;
+    this->dropProb = dropProb;
+    cache = Cache(100, &sender);
+}
+
 
 // Driver code 
-int main() { 
+int main(int argc, char ** argv) { 
     int clientPort, serverPort;
     std::string clientIpStr, serverIpStr;
     in_addr_t clientIp, serverIp;
@@ -229,6 +239,20 @@ int main() {
     Client client;
 
     printf("This is the Client\n");
+
+    float prob;
+    ClientMode mode;
+    prob = 0;
+    mode = NormalClient;
+
+    if(argc == 3){
+        if(argv[1][0] == '-' && argv[1][1] == 'd'){
+            mode = DroppingClient;
+            prob = atof(argv[2]);
+        }
+    }
+
+    client = Client(mode, prob);
 
     std::cout << "Enter the desired Client Port number" << std::endl;
     std::cin >> clientPort;

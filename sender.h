@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -28,20 +29,29 @@ typedef enum success_type {
 	OtherFailure = 2
 } SuccessType;
 
+typedef enum sender_mode {
+	NormalSender = 0,
+	DroppingSender = 1
+} SenderMode;
+
 class Sender{
 public:
 
+	float dropProb;
+	SenderMode senderMode;
 	Marshal marshal;
 	uint messageNum;
 
 	
 	Sender();
-
+	Sender(float dropProb);
 	
 	void updateNum();
 	uint getNum();
 	uint getUpdateNum();
 
+	//return 1 yes drop it, 0 no do not drop it
+	uint toDrop();
 
 	//returns the number of packets waiting and waits up to seconds seconds of time
 	int input_timeout (int filedes, unsigned int seconds);
@@ -55,24 +65,8 @@ public:
 	Message recvMessage(int sockfd,  struct sockaddr_in * sa);
 	int sendResponse(Message m, int sockfd,  struct sockaddr_in * sa);
 
-/*
-	int sendMessage(Message m, int sockfd, struct sockaddr_in *sa);
-
-	//for the recving message we assume that it is zeroed out 
-	int recvMessage(Message * m, int sockfd, struct sockaddr_in *sa);
-*/
-
-
-
 	//reads in chunks for big messages returns number of bytes read
 	int recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa);
-
-
-
-
 };
-
-
-
 
 #endif

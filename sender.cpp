@@ -18,7 +18,30 @@ uint Sender::getUpdateNum(){
 
 
 Sender::Sender(){
-    messageNum = 500;
+    messageNum = 0;
+    this->dropProb = 0;
+    senderMode = NormalSender;
+    srand(time(0));
+}
+
+Sender::Sender(float dropProb){
+    messageNum = 0;
+    this->dropProb = dropProb;
+    senderMode = DroppingSender;
+    srand(time(0));
+}
+
+//1 means yes, do drop and 0 means no dont drop
+uint Sender::toDrop(){
+    uint r = rand() % 100;
+
+    printf("%d\n", r);
+    printf("%d\n", (dropProb*100));
+
+    if(r < (dropProb * 100) ){
+        return 1;
+    }
+    return 0;
 }
 
   
@@ -86,8 +109,14 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     //the idea of this do while loop is to check if we have an response waiting, 
     i = 0;
     do{
-	    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
-	    packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
+        if(toDrop() == 0){
+            printf("sent message\n");
+    	    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
+        }
+        else{
+            printf("didnt send message\n");
+        }
+        packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
 
 	    i+=1;
     } while(packets_waiting == 0 && i < NUM_TIMEOUTS);
@@ -130,7 +159,10 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
 
     len = sizeof(*sa);
     byte_stream = marshal.marshalMessage(m, &stream_len);
-    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, len); 
+
+    if(toDrop() == 0){
+        sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, len); 
+    }
     free(byte_stream);
 
     return 0;

@@ -228,34 +228,106 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
 
         //this is only if we do at most once, 
-        if( checkMap(m, cliaddr)  == 0){
 
-            m.print();
-            //we should change this to a list that we then go through and send out
-            m = execute(sockfd, m, clientNum);
-            
-            //after we act on the message we send a return
-            sender.sendResponse(m, sockfd, &cliaddr);
-        }else{
-            printf("DUPPLICATE PACKET\n");
-            m.print();
+        m.print();
+        if(semantic == AtMostOnce){
+            printf("AT MOST ONCE\n");
+
+            if( checkMap(m, cliaddr)  == 0){
+                //we should change this to a list that we then go through and send out
+                m = execute(sockfd, m, clientNum);
+                //after we act on the message we send a return
+                sender.sendResponse(m, sockfd, &cliaddr);
+            }else{
+                printf("DUPPLICATE PACKET\n");
+            }
         }
+        else{
+            printf("AT LEAST ONCE\n");
+
+            //no need to filter out
+            m = execute(sockfd, m, clientNum);
+            sender.sendResponse(m, sockfd, &cliaddr);
+        }
+
+        
 
     }
     return 0; 
 }
 
 Server::Server(){
+    this->semantic = AtMostOnce;
+    this->mode = NormalServer;
+    this->dropProb = 0;
+}
+
+Server::Server(InvocationSemantic semantic, ServerMode mode, float dropProb){
+
+    if(mode == DroppingServer){
+        sender = Sender(dropProb);
+    }
+
+    this->semantic = semantic;
+    this->mode = mode;
+    this->dropProb = dropProb;
 }
 
 
 // Driver code 
-int main() { 
+int main(int argc, char ** argv) { 
     int serverPort;
     std::string serverIpStr;
     in_addr_t serverIp;
     const char * serverIpPtr;
     Server server;
+
+    /*
+    We either have server -m => at-most-once or server -l => at-least-once
+    and we have server -d p where p is the drop percentage for the dropping
+    */
+    int pos;
+    float prob;
+    InvocationSemantic semantic;
+    ServerMode mode;
+
+    semantic = AtMostOnce;
+    mode = NormalServer;
+    prob = 0;
+
+
+    if(argc > 1 && argc < 5){
+        pos = 1;
+        while(pos < argc){
+            if(argv[pos][0] == '-' && argv[pos][1] == 'm'){
+                semantic = AtMostOnce;
+            }
+            else if(argv[pos][0] == '-' && argv[pos][1] == 'l'){
+                semantic = AtLeastOnce;
+            }
+            else if(argv[pos][0] == '-' && argv[pos][1] == 'd'){
+                if(pos > 2){
+                    printf("ERROR\n");
+                    return 1;
+                }
+                mode = DroppingServer;
+                prob = atof(argv[pos+1]);
+                pos++;
+            }
+
+            pos++;
+        }
+    }
+    else if(argc > 4){
+        printf("ERROR TIME\n");
+    }
+
+    printf("Mode: %d\n",  mode);
+    printf("semantic: %d\n", semantic);
+    printf("prob: %f\n", prob);
+
+    server = Server(semantic, mode, prob);
+
 
     serverPort = 8080;
 
@@ -268,4 +340,6 @@ int main() {
     std::cout << "Server hosted on Port: " << serverPort << " and IP address: " << serverIpStr << std::endl;
 
     server.server_loop(serverPort, serverIp);
+
+    return 0;
 } 

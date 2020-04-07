@@ -17,9 +17,20 @@
 #include "marshal.h"
 #include "sender.h"
 #include "messageentry.h"
-//#include "cliententry.h"
 #include "clientmap.h"
 #include "filesystem.h"
+
+
+typedef enum invocation_semantic {
+	AtMostOnce = 0,
+	AtLeastOnce = 1
+} InvocationSemantic;
+
+typedef enum server_mode {
+	NormalServer = 0,
+	DroppingServer = 1
+} ServerMode;
+
 
 
 class Server{
@@ -27,10 +38,16 @@ public:
 	FileSystem fs;
 	std::vector<MessageEntry> messageMap;
 	
+	InvocationSemantic semantic;
+	ServerMode mode;
+	float dropProb;
+
     Sender sender;
 	ClientMap clientMap;
 
 	Server();
+	Server(InvocationSemantic semantic, ServerMode mode, float dropProb);
+
 	int server_loop(int port, in_addr_t serverIp);
 	int checkMap(Message m, struct sockaddr_in cliaddr);
 	Message execute(int sockfd, Message call, uint clientNum);

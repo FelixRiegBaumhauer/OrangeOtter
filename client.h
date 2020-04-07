@@ -22,14 +22,24 @@
 #include "filesystem.h"
 
 
+typedef enum client_mode {
+	NormalClient = 0,
+	DroppingClient = 1
+} ClientMode;
+
+
 class Client{
 public:
     Sender sender;
     Cache cache;
     FileSystem fs;
 
+	ClientMode mode;
+	float dropProb;
+
 
 	Client();
+	Client(ClientMode mode, float dropProb);
 	//int client_loop(int server_port, int client_port);
 	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);
 
