@@ -226,10 +226,11 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
         printf("Serving Client: %d\n", clientNum);
 
+
+        //this is only if we do at most once, 
         if( checkMap(m, cliaddr)  == 0){
 
             m.print();
-
             //we should change this to a list that we then go through and send out
             m = execute(sockfd, m, clientNum);
             

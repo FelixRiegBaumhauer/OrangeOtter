@@ -73,7 +73,6 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 	unsigned char * byte_stream;
 	uint stream_len, resp_len; //, ack_len;
     int n, len, packets_waiting, i;
-    //char buffer [MAXLINE];
     Message resp;
 
 
@@ -82,8 +81,6 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 
 
     //basic idea is that we first send a call, wait for response and then return that
-
-
     byte_stream = marshal.marshalMessage(call, &stream_len);
 
     //the idea of this do while loop is to check if we have an response waiting, 
