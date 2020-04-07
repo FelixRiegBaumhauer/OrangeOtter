@@ -382,6 +382,10 @@ void Message::print(){
 			break;
 		case MonitorEnd: responseType = "Monitor End";
 			break;
+		case Dump: responseType = "Dump";
+			break;
+		case Fresh: responseType = "Fresh";
+			break;
 		default: responseType = "Default";
 			break;
 

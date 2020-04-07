@@ -145,6 +145,31 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             respCallType = MonitorEnd;
             break;
         }
+        case Fresh:{
+            std::string filepath = call.strArgs[0];
+            uint result;
+
+            result = fs.lastModification(filepath);
+
+            respType = Response;
+            respCallType = Fresh;
+            respIntArgs.push_back(result);
+
+            break;
+        }
+        case Dump:{
+            std::string filepath = call.strArgs[0];
+            std::string result;
+
+            result = fs.readWholeFile(filepath);
+
+            respType = Response;
+            respCallType = Dump;
+            respStrArgs.push_back(result);
+
+            break;
+        }
+
 
     }
 

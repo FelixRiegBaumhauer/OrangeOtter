@@ -1,3 +1,6 @@
+#ifndef FILE_SYSTEM_H
+#define FILE_SYSTEM_H
+
 #include <iostream>
 #include <fstream>
 #include <ctime>
@@ -78,3 +81,6 @@ public:
   int shiftFile(char * filepath, int direction);
 };
 */
+
+
+#endif

@@ -18,12 +18,16 @@
 
 #include "marshal.h"
 #include "sender.h"
+#include "cache.h"
+#include "filesystem.h"
 
 
 class Client{
 public:
 	uint num;
     Sender sender;
+    Cache cache;
+    FileSystem fs;
 
 	void updateNum();
 	uint getNum();

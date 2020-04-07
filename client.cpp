@@ -213,7 +213,20 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
           return 0;
         }
         
-        m = sender.sendMessage(m, sockfd, &servaddr);
+        //if read ie a read call or a mode call we update the cache and then we always read locally
+        if(m.callType == Read){
+            cache.updateCache(m.strArgs[0], servaddr, sockfd);
+
+            //now our cache is updated
+            std::string result;
+            result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
+
+            m = Message(Response, Read, 0, {Good}, {result});
+
+        }
+        else{
+            m = sender.sendMessage(m, sockfd, &servaddr);
+        }
 
         processResponse(m, sockfd, &servaddr);
 
@@ -224,6 +237,7 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
 Client::Client(){
     num = 0;
+    cache = Cache(100);
 }
 
 
