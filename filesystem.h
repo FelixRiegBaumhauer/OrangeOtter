@@ -23,6 +23,10 @@ public:
   char getMode(std::string);
   std::vector<uint> shiftFile(std::string, int direction);
 
+  //as the name implies we will be overwriting with this one
+  std::vector<uint> overwriteFile(std::string filepath, std::string bytes);
+
+
   std::vector<uint> checkFile(std::string filepath);
 
   uint findRemove(uint clientId);

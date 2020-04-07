@@ -184,6 +184,19 @@ std::vector<uint> FileSystem::shiftFile(std::string filepath, int direction){
   return checkFile(filepath);
 }
 
+
+
+
+  std::vector<uint> FileSystem::overwriteFile(std::string filepath, std::string bytes){
+    std::ofstream fileOut(filepath);
+    fileOut << bytes;
+    fileOut.close();
+    return checkFile(filepath);
+  }
+
+
+
+
 std::string FileSystem::shiftString(std::string str, int direction){
   int i, ascii_val;
   std::string retStr;

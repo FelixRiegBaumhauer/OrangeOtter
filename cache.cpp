@@ -40,7 +40,8 @@ void Cache::add(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	bytes = resp.strArgs[0];
 
 	//overwrite the file 
-	fs.insertFile(filepath, 0, bytes);
+	fs.overwriteFile(filepath, bytes);
+	//fs.insertFile(filepath, 0, bytes);
 
 
 }
@@ -68,8 +69,10 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 
 	resp = sender.sendMessage(call, sockfd, &servaddr);
 	bytes = resp.strArgs[0];
+
 	//overwrite the file 
-	fs.insertFile(filepath, 0, bytes);
+	//fs.insertFile(filepath, 0, bytes);
+	fs.overwriteFile(filepath, bytes);
 
 	return ce;
 }
@@ -122,8 +125,10 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 		dump_resp = sender.sendMessage(dump_call, sockfd, &servaddr);
 		bytes = dump_resp.strArgs[0];
+		
 		//overwrite the file 
-		fs.insertFile(filepath, 0, bytes);
+		fs.overwriteFile(filepath, bytes);
+		//fs.insertFile(filepath, 0, bytes);
 	}	
 
 	//now we update our lastValidation value
