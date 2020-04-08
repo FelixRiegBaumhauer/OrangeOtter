@@ -286,7 +286,6 @@ int main(int argc, char ** argv) {
     We either have server -m => at-most-once or server -l => at-least-once
     and we have server -d p where p is the drop percentage for the dropping
     */
-    int pos;
     float prob;
     InvocationSemantic semantic;
     ServerMode mode;
@@ -296,30 +295,23 @@ int main(int argc, char ** argv) {
     prob = 0;
 
 
-    if(argc > 1 && argc < 5){
-        pos = 1;
-        while(pos < argc){
-            if(argv[pos][0] == '-' && argv[pos][1] == 'm'){
-                semantic = AtMostOnce;
-            }
-            else if(argv[pos][0] == '-' && argv[pos][1] == 'l'){
-                semantic = AtLeastOnce;
-            }
-            else if(argv[pos][0] == '-' && argv[pos][1] == 'd'){
-                if(pos > 2){
-                    printf("ERROR\n");
-                    return 1;
-                }
+    //need to error proof if both -m and -l passed
+    int opt;
+    while((opt = getopt(argc, argv, "mld:")) != -1){
+        switch(opt){
+            case 'd':
                 mode = DroppingServer;
-                prob = atof(argv[pos+1]);
-                pos++;
-            }
-
-            pos++;
+                prob = atof(optarg);
+                break;
+            case 'm':
+                semantic = AtMostOnce;
+                break;
+            case 'l':
+                semantic = AtLeastOnce;
+            default:
+                printf("MISTAKE\n");
+                break;
         }
-    }
-    else if(argc > 4){
-        printf("ERROR TIME\n");
     }
 
     printf("Mode: %d\n",  mode);

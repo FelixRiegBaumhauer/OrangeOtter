@@ -240,15 +240,23 @@ int main(int argc, char ** argv) {
 
     printf("This is the Client\n");
 
-    float prob;
-    ClientMode mode;
-    prob = 0;
-    mode = NormalClient;
+    float prob = 0;
+    ClientMode mode = NormalClient;
+    int t = 100;
 
-    if(argc == 3){
-        if(argv[1][0] == '-' && argv[1][1] == 'd'){
-            mode = DroppingClient;
-            prob = atof(argv[2]);
+    int opt;
+    while((opt = getopt(argc, argv, "d:t:")) != -1){
+        switch(opt){
+            case 'd':
+                mode = DroppingClient;
+                prob = atof(optarg);
+                break;
+            case 't':
+                t = atoi(optarg);
+                break;
+            default:
+                printf("MISTAKE\n");
+                break;
         }
     }
 
