@@ -9,7 +9,6 @@ Cache::Cache(){
 	this->t = 0;
 }
 
-
 Cache::Cache(Sender * sender){
 	this->sender = sender;
 	this->t = 0;
@@ -19,34 +18,6 @@ Cache::Cache(uint t, Sender * sender){
 	this->sender = sender;
 	this->t = t;
 }
-
-/*
-void Cache::add(std::string filepath, struct sockaddr_in servaddr, int sockfd){
-	std::string bytes;
-	Message call, resp;
-
-
-	//need to check that it isnt there already
-	//add to the map
-	CacheEntry ce = CacheEntry(time(0), filepath);
-	cacheMap.push_back(ce);
-	
-	//then copy over the file 
-	//call = Message(Call, Dump, getNum(), {}, {filepath});
-	//updateNum();
-
-
-	call = Message(Call, Dump, {}, {filepath});
-
-
-	resp = sender->sendMessage(call, sockfd, &servaddr);
-
-	bytes = resp.strArgs[0];
-
-	//overwrite the file 
-	fs.overwriteFile(filepath, bytes);
-}
-*/
 
 CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	Message call, resp;
@@ -96,7 +67,6 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 	cur_time = time(0);
 
-
 	//first check the T vs the t
 	CacheEntry ce = findOrMake(filepath, servaddr, sockfd);
 
@@ -126,7 +96,6 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 		//overwrite the file 
 		fs.overwriteFile(filepath, bytes);
 	}	
-
 	//now we update our lastValidation value
 	updateCacheTime(filepath, time(0));
 }

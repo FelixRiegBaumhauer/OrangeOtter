@@ -1,7 +1,4 @@
-
 #include "sender.h"
-
-
 
 void Sender::updateNum(){
     messageNum++;
@@ -15,7 +12,6 @@ uint Sender::getUpdateNum(){
     messageNum++;
     return tempNum;
 }
-
 
 Sender::Sender(){
     messageNum = 0;
@@ -40,7 +36,6 @@ uint Sender::toDrop(){
     }
     return 0;
 }
-
   
 int Sender::input_timeout (int filedes, unsigned int seconds){
     fd_set set;
@@ -62,7 +57,6 @@ int Sender::input_timeout (int filedes, unsigned int seconds){
     }
     return n;
 }
-
 
 void Sender::populateLocalSockAddr(struct sockaddr_in *sa){
 	memset(sa, 0, sizeof(*sa)); 
@@ -88,17 +82,14 @@ void Sender::populateRemoteSockAddr(struct sockaddr_in *sa, in_addr_t host_ip, i
     sa->sin_port = htons(port); 
 }
 
-
 Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 	unsigned char * byte_stream;
 	uint stream_len, resp_len; //, ack_len;
     int n, len, packets_waiting, i;
     Message resp;
 
-
     //first we update the message num
     call.setNum(getUpdateNum());
-
 
     //basic idea is that we first send a call, wait for response and then return that
     byte_stream = marshal.marshalMessage(call, &stream_len);

@@ -249,9 +249,6 @@ int Server::server_loop(int port, in_addr_t serverIp){
             m = execute(sockfd, m, clientNum);
             sender.sendResponse(m, sockfd, &cliaddr);
         }
-
-        
-
     }
     return 0; 
 }
