@@ -6,8 +6,7 @@
 #include <ctime>
 
 #include "monitortable.h"
-#include "nofileexception.h"
-#include "fileboundexception.h"
+#include "exception.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
