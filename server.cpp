@@ -257,9 +257,9 @@ int Server::server_loop(int port, in_addr_t serverIp){
 }
 
 Server::Server(){
-    this->semantic = AtMostOnce;
-    this->mode = NormalServer;
-    this->dropProb = 0;
+    this->semantic = DEFAULT_INVOCATION_SEMANTIC;
+    this->mode = DEFAULT_SERVER_MODE;
+    this->dropProb = DEFAULT_PROB;
 }
 
 Server::Server(InvocationSemantic semantic, ServerMode mode, float dropProb){

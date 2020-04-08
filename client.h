@@ -22,6 +22,11 @@
 #include "filesystem.h"
 
 
+#define DEFAULT_T 60
+#define DEFAULT_CLIENT_MODE NormalClient
+#define DEFAULT_PROB 0
+
+
 typedef enum client_mode {
 	NormalClient = 0,
 	DroppingClient = 1
@@ -36,10 +41,10 @@ public:
 
 	ClientMode mode;
 	float dropProb;
-
+	uint t;
 
 	Client();
-	Client(ClientMode mode, float dropProb);
+	Client(ClientMode mode, float dropProb, uint t);
 	//int client_loop(int server_port, int client_port);
 	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);
 

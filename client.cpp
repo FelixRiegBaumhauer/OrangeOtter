@@ -216,17 +216,25 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 }
 
 Client::Client(){
-    cache = Cache(100, &sender);
+    this->mode = DEFAULT_CLIENT_MODE;
+    this->dropProb = DEFAULT_PROB;
+    this->t = DEFAULT_T;
+
+    cache = Cache(DEFAULT_T, &sender);
 }
 
-Client::Client(ClientMode mode, float dropProb){
-    if(mode = DroppingClient){
-        sender = Sender(dropProb);
+//nasty bug in the making
+Client::Client(ClientMode mode, float dropProb, uint t){
+
+    if(mode == DroppingClient){
+        this->sender = Sender(dropProb);
     }
 
     this->mode = mode;
     this->dropProb = dropProb;
-    cache = Cache(100, &sender);
+    this->t = t;
+
+    this->cache = Cache(t, &sender);
 }
 
 
@@ -236,13 +244,12 @@ int main(int argc, char ** argv) {
     std::string clientIpStr, serverIpStr;
     in_addr_t clientIp, serverIp;
     const char * serverIpPtr;
-    Client client;
 
     printf("This is the Client\n");
 
-    float prob = 0;
-    ClientMode mode = NormalClient;
-    int t = 100;
+    float prob = DEFAULT_PROB;
+    ClientMode mode = DEFAULT_CLIENT_MODE;
+    uint t = DEFAULT_T;
 
     int opt;
     while((opt = getopt(argc, argv, "d:t:")) != -1){
@@ -260,7 +267,12 @@ int main(int argc, char ** argv) {
         }
     }
 
-    client = Client(mode, prob);
+    printf("mode: %d\n", mode);
+    printf("prob: %f\n", prob);
+    printf("t: %d\n", t);
+
+
+    Client client = Client(mode, prob, t);
 
     std::cout << "Enter the desired Client Port number" << std::endl;
     std::cin >> clientPort;

@@ -21,6 +21,10 @@
 #include "filesystem.h"
 
 
+#define DEFAULT_INVOCATION_SEMANTIC AtMostOnce
+#define DEFAULT_SERVER_MODE NormalServer
+#define DEFAULT_PROB 0
+
 typedef enum invocation_semantic {
 	AtMostOnce = 0,
 	AtLeastOnce = 1

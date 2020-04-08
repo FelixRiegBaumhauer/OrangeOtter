@@ -35,9 +35,6 @@ Sender::Sender(float dropProb){
 uint Sender::toDrop(){
     uint r = rand() % 100;
 
-    printf("%d\n", r);
-    printf("%d\n", (dropProb*100));
-
     if(r < (dropProb * 100) ){
         return 1;
     }
@@ -110,12 +107,10 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     i = 0;
     do{
         if(toDrop() == 0){
-            printf("sent message\n");
+            if(senderMode == DroppingSender){ printf("PACKET SENT\n"); }
     	    sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
-        }
-        else{
-            printf("didnt send message\n");
-        }
+        } else if(senderMode == DroppingSender){ printf("PACKET DROPPED\n"); } 
+
         packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
 
 	    i+=1;
@@ -161,8 +156,9 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
     byte_stream = marshal.marshalMessage(m, &stream_len);
 
     if(toDrop() == 0){
+        if(senderMode == DroppingSender){ printf("PACKET SENT\n"); }
         sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, len); 
-    }
+    } else if(senderMode == DroppingSender){ printf("PACKET DROPPED\n"); }
     free(byte_stream);
 
     return 0;
