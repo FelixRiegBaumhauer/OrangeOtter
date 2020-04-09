@@ -124,17 +124,17 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
             std::cin >> filepath;
 
             std::cout << "Input the offset position" << std::endl;
-            std::cin >> toffset;
-            while(toffset < 0){
+            std::cin >> offset;
+            while(offset < 0){
                 std::cout << "No Negative Input, Input the offset position" << std::endl;
-                std::cin >> toffset;
+                std::cin >> offset;
             }
             
             std::cout << "Input Number of Characters" << std::endl;
-            std::cin >> tnum;
-            while(tnum < 0){
+            std::cin >> num;
+            while(num < 0){
                 std::cout << "No Negative Input, Input Number of Characters" << std::endl;
-                std::cin >> tnum;
+                std::cin >> num;
             }
 
             std::cout <<  "read" << std::endl; 

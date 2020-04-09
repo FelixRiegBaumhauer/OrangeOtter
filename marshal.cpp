@@ -2,16 +2,19 @@
 
 
 void Marshal::intToChar(uint src, unsigned char * dest){
-	uint i;
+	uint i, nsrc;
 	uint uint_size = sizeof(uint);
 	uint char_size = sizeof(unsigned char);
+
+	nsrc = htonl(src);
+
 	for(i=0; i<uint_size; i++){
-		dest[i] = src >> (uint_size - i - 1)*BITS_IN_BYTE;
+		dest[i] = nsrc >> (uint_size - i - 1)*BITS_IN_BYTE;
 	}
 }
 
 int Marshal::charToInt(unsigned char * src){
-	uint i, result;
+	uint i, result, hresult;
 
 	result = 0;
 
@@ -22,7 +25,9 @@ int Marshal::charToInt(unsigned char * src){
 		result |= src[i];
 	}
 
-	return result;
+	hresult = ntohl(result);
+
+	return hresult;
 }
 
 uint Marshal::packageString(std::string src, unsigned char * dest){

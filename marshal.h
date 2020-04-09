@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <arpa/inet.h>
 
 #include "message.h"
 
