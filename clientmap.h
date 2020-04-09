@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 
 #include "cliententry.h"
+#include "exception.h"
 
 class ClientMap{
 public:

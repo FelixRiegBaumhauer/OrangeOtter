@@ -18,15 +18,19 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
 
 
     for(i=0; i<clientNums.size(); i++){
-        ClientEntry ce = clientMap.getClientEntry(clientNums[i]);
+        try{
+            ClientEntry ce = clientMap.getClientEntry(clientNums[i]); /* If an entry is not found we throw a general exception */
 
-        memset(&cliaddr, 0, sizeof(cliaddr)); 
-        cliaddr.sin_family = AF_INET; 
-        cliaddr.sin_addr.s_addr = ce.ip_addr;  
-        cliaddr.sin_port = ce.port; 
+            memset(&cliaddr, 0, sizeof(cliaddr)); 
+            cliaddr.sin_family = AF_INET; 
+            cliaddr.sin_addr.s_addr = ce.ip_addr;  
+            cliaddr.sin_port = ce.port; 
 
-        Message m = Message(Response, MonitorUpdate, {}, {filepath});
-        sender.sendResponse(m, sockfd, &cliaddr);        
+            Message m = Message(Response, MonitorUpdate, {}, {filepath});
+            sender.sendResponse(m, sockfd, &cliaddr);  
+        } catch(generalException e){
+            std::cout << "Client with id: " << clientNums[i] << " could not be found" << std::endl;
+        }      
     }
 }
 
@@ -206,28 +210,6 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
     return resp;
 }
 
-  
-int input_timeout (int filedes, unsigned int seconds)
-{
-    fd_set set;
-    struct timeval timeout;
-    int n;
-
-    /* Initialize the file descriptor set. */
-    FD_ZERO (&set);
-    FD_SET (filedes, &set);
-
-    /* Initialize the timeout data structure. */
-    timeout.tv_sec = seconds;
-    timeout.tv_usec = 0;
-
-    /* select returns 0 if timeout, 1 if input available, -1 if error. */
-    if((n = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) < 0){
-        printf("ERROR\n");
-    }
-    return n;
-}
-
 //return 1 if true, ie we have a collision
 int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
     uint i = 0;
@@ -244,7 +226,6 @@ int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic s
 
     //in this case we had no hit, so we add it
     messageMap.push_back(mEntry);
-
     return 0;
 }
 
@@ -259,11 +240,11 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
       
     // Creating socket file descriptor 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { return 1; } 
     sender.populateRemoteSockAddr(&servaddr, serverIp, port);  
 
     // Bind the socket with the server address 
-    if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
+    if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ){ return 1; } 
 
     while(1){
         //check if this message is in our map, then we either discard or proceed
@@ -340,7 +321,8 @@ int main(int argc, char ** argv) {
             case 'l':
                 semantic = AtLeastOnce;
             default:
-                printf("MISTAKE\n");
+                std::cout << "Improper arguments" << std::endl;
+                return 1;
                 break;
         }
     }
@@ -363,6 +345,8 @@ int main(int argc, char ** argv) {
     std::cout << "Server hosted on Port: " << serverPort << " and IP address: " << serverIpStr << std::endl;
 
     server.server_loop(serverPort, serverIp);
+
+    std::cout << "Server ended Abrubtlly" << std::endl;
 
     return 0;
 } 

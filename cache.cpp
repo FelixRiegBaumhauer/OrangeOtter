@@ -67,10 +67,7 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 	Message time_call, time_resp, dump_call, dump_resp;
 
 	cur_time = time(0);
-
-	//first check the T vs the t
-	CacheEntry ce = findOrMake(filepath, servaddr, sockfd);
-
+	CacheEntry ce = findOrMake(filepath, servaddr, sockfd); /* compare T vs t */
 
 	if(cur_time - ce.lastValidation < t){ return; /*cache is valid*/ }
 
@@ -81,20 +78,15 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 	if(time_resp.strArgs.size() < 1 || (time_resp.intArgs.size() > 0 && time_resp.intArgs[0] == Failure) ){ throw noFileException(); }
 	t_server = time_resp.intArgs[0];
 
-	if(t_client < t_server){
+	if(t_client < t_server){ /* In this case the entry is valid */
 		std::string bytes;
 
-		//the cache entry is invalid
 		dump_call = Message(Call, Dump, {}, {filepath});
-
 
 		dump_resp = sender->sendMessage(dump_call, sockfd, &servaddr);
 		if(dump_resp.strArgs.size() < 1 || (dump_resp.intArgs.size() > 0 && dump_resp.intArgs[0] == Failure) ){ throw noFileException(); }
 		bytes = dump_resp.strArgs[0];
-		
-		//overwrite the file 
-		fs.overwriteFile(filepath, bytes);
-	}	
-	//now we update our lastValidation value
-	updateCacheTime(filepath, time(0));
+		fs.overwriteFile(filepath, bytes); /* In this case we overwrite the file */
+	}
+	updateCacheTime(filepath, time(0)); /* Now updtae our validation value with appropriate new time */
 }

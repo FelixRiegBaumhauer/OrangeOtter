@@ -24,7 +24,6 @@ MonitorEntry::MonitorEntry(MonitorEntry * me){
 }
 
 MonitorEntry::~MonitorEntry(){
-  //std::cout << "Destroy" << filepath << std::endl;
 }
 
 

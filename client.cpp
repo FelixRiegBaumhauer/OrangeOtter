@@ -16,9 +16,7 @@ int Client::input_timeout (int filedes, unsigned int seconds)
     timeout.tv_usec = 0;
 
     /* select returns 0 if timeout, 1 if input available, -1 if error. */
-    if((n = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) < 0){
-        printf("ERROR\n");
-    }
+    if((n = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) < 0){ return -1; }
     return n;
 }
 
@@ -36,11 +34,11 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
         diff = end_time - cur_time;
 
         //here we wait for packets to come in
-        n = input_timeout(sockfd, diff);
+        if( (n = input_timeout(sockfd, diff)) == -1){ throw generalException(); }
         //need to do error checking
 
         if(n > 0){
-            //now read messgae
+            //now read messgae and output it 
             notification = sender.recvMessage(sockfd, sa);
             notification.print();
         }
@@ -97,7 +95,7 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
     std::cout << "Establishing Connection" << std::endl;
 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { printf("ERROR\n"); return 1; } 
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { return 1; } 
     sender.populateRemoteSockAddr(&cliaddr, client_ip, client_port);
     sender.populateRemoteSockAddr(&servaddr, server_ip, server_port);
 
@@ -105,7 +103,7 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
 
     // Bind the socket with the client address 
-    if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ printf("ERROR\n"); return 1; } 
+    if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ return 1; } 
 
 
 
@@ -137,7 +135,6 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
                 std::cin >> num;
             }
 
-            std::cout <<  "read" << std::endl; 
             m = Message(Call, Read, {(uint)offset, (uint)num}, {filepath});
         }
 
@@ -158,7 +155,6 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
             std::cout << "Input Text" << std::endl;
             std::cin >> bytes;
 
-            std::cout <<  "insert" << std::endl;
             m = Message(Call, Insert, {(uint)offset}, {filepath, bytes});
         }
 
@@ -174,32 +170,20 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
                 std::cout << "No Negative Input, Input the duration" << std::endl;
                 std::cin >> duration;
             }
-
-            std::cout << "monitor" << std::endl;
             m = Message(Call, Monitor, {(uint)duration}, {filepath});
         }
 
         if(inputText.compare("mode") == 0){
             std::string filepath;
-
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
-
-            std::cout <<  "mode" << std::endl;
             m = Message(Call, Mode, {}, {filepath});
         }
 
         if(inputText.compare("shift") == 0){
             std::string filepath;
-
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
-            /*
-            std::cout << "Input the direction" << std::endl;
-            std::cin >> direction;
-            */
-
-            std::cout <<  "shift" << std::endl;
             m = Message(Call, Shift, {1}, {filepath});
         }
 
@@ -222,24 +206,14 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
             } catch(fileBoundException e){ m = Message(Response, Read, 0, {Failure, FileBoundException}, {});
             }
 
-/*
-            //now our cache is updated
-            std::string result;
-            try{
-                result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
-                m = Message(Response, Read, 0, {Good}, {result});
-            } catch(noFileException e) { m = Message(Response, Read, 0, {Failure, NoFileException}, {});                
-            } catch(fileBoundException e){ m = Message(Response, Read, 0, {Failure, FileBoundException}, {});
-            }
-            */
-
         }
         else{
             m = sender.sendMessage(m, sockfd, &servaddr);
         }
 
-        processResponse(m, sockfd, &servaddr);
-
+        try{
+            processResponse(m, sockfd, &servaddr);
+        } catch(generalException e){ return 1; }
 
 
     }
@@ -275,7 +249,7 @@ int main(int argc, char ** argv) {
     in_addr_t clientIp, serverIp;
     const char * serverIpPtr;
 
-    printf("This is the Client\n");
+    std::cout << "This is the Client" << std::endl;
 
     float prob = DEFAULT_PROB;
     ClientMode mode = DEFAULT_CLIENT_MODE;
@@ -292,7 +266,7 @@ int main(int argc, char ** argv) {
                 t = atoi(optarg);
                 break;
             default:
-                printf("MISTAKE\n");
+                return 1;
                 break;
         }
     }
@@ -315,9 +289,9 @@ int main(int argc, char ** argv) {
     std::cout << "Enter the desired Server Port number" << std::endl;
     std::cin >> serverPort;  
 
-
     clientIp = inet_addr("127.0.0.1");
 
-
-    client.client_loop(serverPort, clientPort, serverIp, clientIp);
+    if(client.client_loop(serverPort, clientPort, serverIp, clientIp) != 0){
+        std::cout << "Terminated for unknown reasons" << std::endl;
+    }
 } 

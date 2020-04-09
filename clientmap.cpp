@@ -17,7 +17,6 @@ uint ClientMap::findClientNum(struct sockaddr_in cliaddr){
 		}
 	}
 
-	
 	newClientNum = curNum;
 	ClientEntry ce = ClientEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, newClientNum);
 	map.push_back(ce);
@@ -35,6 +34,5 @@ ClientEntry ClientMap::getClientEntry(uint clientNum){
 		}
 	}
 
-	printf("BIG ERROR\n");
-	return map[0];
+	throw generalException();
 }
