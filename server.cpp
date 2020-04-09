@@ -229,8 +229,11 @@ int input_timeout (int filedes, unsigned int seconds)
 }
 
 //return 1 if true, ie we have a collision
-int Server::checkMap(Message m, struct sockaddr_in cliaddr){
+int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
     uint i = 0;
+
+    if(semantic == AtLeastOnce){ return 0; }
+
     MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
 
     for(i=0; i<messageMap.size(); i++){
@@ -273,28 +276,13 @@ int Server::server_loop(int port, in_addr_t serverIp){
         printf("Serving Client: %d\n", clientNum);
 
 
-        //this is only if we do at most once, 
-
         m.print();
-        if(semantic == AtMostOnce){
-            printf("AT MOST ONCE\n");
-
-            if( checkMap(m, cliaddr)  == 0){
-                //we should change this to a list that we then go through and send out
-                m = execute(sockfd, m, clientNum);
-                //after we act on the message we send a return
-                sender.sendResponse(m, sockfd, &cliaddr);
-            }else{
-                printf("DUPPLICATE PACKET\n");
-            }
-        }
-        else{
-            printf("AT LEAST ONCE\n");
-
-            //no need to filter out
+        if( checkMap(m, cliaddr, semantic) == 0){
+            //we should change this to a list that we then go through and send out
             m = execute(sockfd, m, clientNum);
+            //after we act on the message we send a return
             sender.sendResponse(m, sockfd, &cliaddr);
-        }
+        }else{ printf("DUPPLICATE PACKET\n"); }
     }
     return 0; 
 }
