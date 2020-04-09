@@ -158,7 +158,7 @@ std::vector<uint> FileSystem::shiftFile(std::string filepath, int direction){
   std::ifstream fileIn(filepath);
 
   //check if the file does not exist we throw error
-  if(fileIn.good()){ throw noFileException(); }
+  if(!fileIn.good()){ throw noFileException(); }
 
   while (getline (fileIn, curLine)) {
     tempHold.append(curLine);

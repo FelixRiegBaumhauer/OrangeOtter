@@ -36,7 +36,10 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 
 	resp = sender->sendMessage(call, sockfd, &servaddr);
 
-	if(resp.strArgs.size() < 1 || (resp.intArgs.size() > 0 && resp.intArgs[0] == Failure) ){ throw noFileException(); }
+	if(resp.strArgs.size() < 1 || (resp.intArgs.size() > 0 && resp.intArgs[0] == Failure) ){ 
+		throw noFileException(); 
+	}
+
 	bytes = resp.strArgs[0];
 	//overwrite the file or creates it
 	fs.overwriteFile(filepath, bytes);
@@ -69,24 +72,32 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 	cur_time = time(0);
 	CacheEntry ce = findOrMake(filepath, servaddr, sockfd); /* compare T vs t */
 
-	if(cur_time - ce.lastValidation < t){ return; /*cache is valid*/ }
+	if(cur_time - ce.lastValidation < t){
+		return; /*cache is valid*/ 
+	}
 
 	t_client = fs.lastModification(filepath);
 	time_call = Message(Call, Fresh, {}, {filepath}); 
 
 	time_resp = sender->sendMessage(time_call, sockfd, &servaddr);
-	if(time_resp.strArgs.size() < 1 || (time_resp.intArgs.size() > 0 && time_resp.intArgs[0] == Failure) ){ throw noFileException(); }
-	t_server = time_resp.intArgs[0];
+	if(time_resp.intArgs.size() != 2 || (time_resp.intArgs.size() > 0 && time_resp.intArgs[0] == Failure) ){ 
+		throw noFileException(); 
+	}
+	
+	t_server = time_resp.intArgs[1];
 
-	if(t_client < t_server){ /* In this case the entry is valid */
+	if(t_client < t_server){ /* In this case the entry is invalid */
 		std::string bytes;
 
 		dump_call = Message(Call, Dump, {}, {filepath});
 
 		dump_resp = sender->sendMessage(dump_call, sockfd, &servaddr);
-		if(dump_resp.strArgs.size() < 1 || (dump_resp.intArgs.size() > 0 && dump_resp.intArgs[0] == Failure) ){ throw noFileException(); }
+		if(dump_resp.strArgs.size() < 1 || (dump_resp.intArgs.size() > 0 && dump_resp.intArgs[0] == Failure) ){ 
+			throw noFileException(); 
+		}
 		bytes = dump_resp.strArgs[0];
 		fs.overwriteFile(filepath, bytes); /* In this case we overwrite the file */
 	}
+
 	updateCacheTime(filepath, time(0)); /* Now updtae our validation value with appropriate new time */
 }

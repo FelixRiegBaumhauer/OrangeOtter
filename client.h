@@ -22,7 +22,7 @@
 #include "filesystem.h"
 
 
-#define DEFAULT_T 60
+#define DEFAULT_T 5
 #define DEFAULT_CLIENT_MODE NormalClient
 #define DEFAULT_PROB 0
 

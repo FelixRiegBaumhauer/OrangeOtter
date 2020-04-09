@@ -7,6 +7,7 @@ void Marshal::intToChar(uint src, unsigned char * dest){
 	uint char_size = sizeof(unsigned char);
 
 	nsrc = htonl(src);
+	//nsrc = src;
 
 	for(i=0; i<uint_size; i++){
 		dest[i] = nsrc >> (uint_size - i - 1)*BITS_IN_BYTE;
@@ -26,6 +27,7 @@ int Marshal::charToInt(unsigned char * src){
 	}
 
 	hresult = ntohl(result);
+	//hresult = result;
 
 	return hresult;
 }

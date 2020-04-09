@@ -176,6 +176,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 
                 respType = Response;
                 respCallType = Fresh;
+                respIntArgs.push_back(Good);
                 respIntArgs.push_back(result);
             } catch(noFileException e) {
                 respType = Response;
@@ -207,6 +208,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
     }
 
     Message resp = Message(respType, respCallType, respIntArgs, respStrArgs);
+    resp.print();
     return resp;
 }
 
