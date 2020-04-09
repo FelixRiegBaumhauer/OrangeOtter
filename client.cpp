@@ -117,50 +117,66 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
         if(inputText.compare("read") == 0){
             std::string filepath;
-            uint offset;
-            uint num;
-
+            int offset, num;
             std::string resStr;
 
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
+
             std::cout << "Input the offset position" << std::endl;
-            std::cin >> offset;
+            std::cin >> toffset;
+            while(toffset < 0){
+                std::cout << "No Negative Input, Input the offset position" << std::endl;
+                std::cin >> toffset;
+            }
+            
             std::cout << "Input Number of Characters" << std::endl;
-            std::cin >> num;
+            std::cin >> tnum;
+            while(tnum < 0){
+                std::cout << "No Negative Input, Input Number of Characters" << std::endl;
+                std::cin >> tnum;
+            }
 
             std::cout <<  "read" << std::endl; 
-            m = Message(Call, Read, {offset, num}, {filepath});
+            m = Message(Call, Read, {(uint)offset, (uint)num}, {filepath});
         }
 
         if(inputText.compare("insert") == 0){
             std::string filepath;
-            uint offset;
+            int offset;
             std::string bytes;
 
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
             std::cout << "Input the offset position" << std::endl;
             std::cin >> offset;
+            while(offset < 0){
+                std::cout << "No Negative Input, Input the offset position" << std::endl;
+                std::cin >> offset;
+            }
+
             std::cout << "Input Text" << std::endl;
             std::cin >> bytes;
 
             std::cout <<  "insert" << std::endl;
-            m = Message(Call, Insert, {offset}, {filepath, bytes});
+            m = Message(Call, Insert, {(uint)offset}, {filepath, bytes});
         }
 
         if(inputText.compare("monitor") == 0){
             std::string filepath;
-            uint duration;
-            uint clientId;
+            int duration;
 
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
             std::cout << "Input the duration" << std::endl;
             std::cin >> duration;
+            while(duration < 0){
+                std::cout << "No Negative Input, Input the duration" << std::endl;
+                std::cin >> duration;
+            }
 
             std::cout << "monitor" << std::endl;
-            m = Message(Call, Monitor, {duration}, {filepath});
+            m = Message(Call, Monitor, {(uint)duration}, {filepath});
         }
 
         if(inputText.compare("mode") == 0){
@@ -175,15 +191,16 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
         if(inputText.compare("shift") == 0){
             std::string filepath;
-            uint direction;
 
             std::cout << "Input Filepath" << std::endl;
             std::cin >> filepath;
+            /*
             std::cout << "Input the direction" << std::endl;
             std::cin >> direction;
+            */
 
             std::cout <<  "shift" << std::endl;
-            m = Message(Call, Shift, {direction}, {filepath});
+            m = Message(Call, Shift, {1}, {filepath});
         }
 
 
@@ -195,13 +212,26 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
         
         //if read ie a read call or a mode call we update the cache and then we always read locally
         if(m.callType == Read){
-            cache.updateCache(m.strArgs[0], servaddr, sockfd);
+            try{
+                cache.updateCache(m.strArgs[0], servaddr, sockfd);
 
+                std::string result;
+                result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
+                m = Message(Response, Read, 0, {Good}, {result});
+            } catch(noFileException e) { m = Message(Response, Read, 0, {Failure, NoFileException}, {});                
+            } catch(fileBoundException e){ m = Message(Response, Read, 0, {Failure, FileBoundException}, {});
+            }
+
+/*
             //now our cache is updated
             std::string result;
-            result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
-
-            m = Message(Response, Read, 0, {Good}, {result});
+            try{
+                result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
+                m = Message(Response, Read, 0, {Good}, {result});
+            } catch(noFileException e) { m = Message(Response, Read, 0, {Failure, NoFileException}, {});                
+            } catch(fileBoundException e){ m = Message(Response, Read, 0, {Failure, FileBoundException}, {});
+            }
+            */
 
         }
         else{

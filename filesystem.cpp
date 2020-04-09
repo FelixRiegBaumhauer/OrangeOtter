@@ -9,7 +9,9 @@ time_t FileSystem::lastModification(std::string filepath){
   const char *c;
 
   c = filepath.c_str();
-  stat(c, &buf);
+
+  if(stat(c, &buf) != 0){ throw noFileException(); }
+  
   return buf.st_mtim.tv_sec;
 }
 
@@ -51,7 +53,7 @@ std::string FileSystem::readFile(std::string filepath, int offset, int num){
   }
 
   //need to do a check
-  if(offset + num > retStr.size() ){  throw fileBoundException();  }
+  if(offset + num > retStr.size() || offset < 0 || num < 0){  throw fileBoundException();  }
   retStr = retStr.substr(offset, num);
   fileIn.close(); 
 
@@ -63,7 +65,7 @@ std::vector<uint> FileSystem::insertFile(std::string filepath, int offset, std::
   std::string tempHold, curLine;
   std::ifstream fileIn(filepath);
 
-  //check if file exists, if not we just continue with our empty string
+  //check if file exists, if not we just continue with our empty string which will create the file
   if(fileIn.good()){  
 
     while (getline (fileIn, curLine)) {
@@ -77,7 +79,7 @@ std::vector<uint> FileSystem::insertFile(std::string filepath, int offset, std::
   }
   fileIn.close();
 
-  if(offset > tempHold.size() ){  throw fileBoundException();  }
+  if(offset > tempHold.size() || offset < 0 ){  throw fileBoundException();  }
   tempHold.insert(offset, bytes);
   std::ofstream fileOut(filepath);
   fileOut << tempHold;
@@ -155,17 +157,16 @@ std::vector<uint> FileSystem::shiftFile(std::string filepath, int direction){
   std::string tempHold, curLine;
   std::ifstream fileIn(filepath);
 
-  //check if file exists, if not we just continue with our empty string
-  if(fileIn.good()){  
+  //check if the file does not exist we throw error
+  if(fileIn.good()){ throw noFileException(); }
 
-    while (getline (fileIn, curLine)) {
-      tempHold.append(curLine);
-      tempHold.append("\n");
-    }
-    //delete the last /n
-    if(tempHold.size() > 0){
-      tempHold.pop_back();
-    }
+  while (getline (fileIn, curLine)) {
+    tempHold.append(curLine);
+    tempHold.append("\n");
+  }
+  //delete the last /n
+  if(tempHold.size() > 0){
+    tempHold.pop_back();
   }
   fileIn.close();
 

@@ -50,14 +50,25 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             std::string filepath = call.strArgs[0];
             std::string result;
 
-            result = fs.readFile(filepath, offset, num);
-            std::cout << "Result: " << result << std::endl;
-
-            respType = Response;
-            respCallType = Read;
-            respIntArgs.push_back(Good);
-            respStrArgs.push_back(result);
-            //now we return
+            try {
+                result = fs.readFile(filepath, offset, num);
+                std::cout << "Result: " << result << std::endl;
+                
+                respType = Response;
+                respCallType = Read;
+                respIntArgs.push_back(Good);
+                respStrArgs.push_back(result);
+            } catch(noFileException e) {
+                respType = Response;
+                respCallType = Read;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(NoFileException);
+            } catch(fileBoundException e) {
+                respType = Response;
+                respCallType = Read;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(FileBoundException);
+            }
             break;
         }
         case Insert:
@@ -68,14 +79,22 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 
             std::vector<uint> clientNums;
 
-            clientNums = fs.insertFile(filepath, offset, bytes);
+            try{
+                clientNums = fs.insertFile(filepath, offset, bytes);
 
-            //send the monitor responses
-            sendList(sockfd, clientNums, filepath);
+                //send the monitor responses
+                sendList(sockfd, clientNums, filepath);
 
-            respType = Response;
-            respCallType = Insert;
-            respIntArgs.push_back(Good); //needs to be conditional
+                respType = Response;
+                respCallType = Insert;
+                respIntArgs.push_back(Good); 
+            } catch(fileBoundException e) {
+                respType = Response;
+                respCallType = Insert;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(FileBoundException);
+            }
+
             break;
         }
         case Monitor:
@@ -97,14 +116,21 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             std::string filepath = call.strArgs[0];
             std::vector<uint> clientNums;
 
-            clientNums = fs.shiftFile(filepath, direction);
+            try{
+                clientNums = fs.shiftFile(filepath, direction);
 
-            //send the monitor responses
-            sendList(sockfd, clientNums, filepath);
+                //send the monitor responses
+                sendList(sockfd, clientNums, filepath);
 
-            respType = Response;
-            respCallType = Shift;
-            respIntArgs.push_back(Good);
+                respType = Response;
+                respCallType = Shift;
+                respIntArgs.push_back(Good);
+            } catch(noFileException e) {
+                respType = Response;
+                respCallType = Shift;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(NoFileException);
+            }
             break;
         }
         case Mode:
@@ -113,14 +139,21 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             char c;
             std::string result;
 
-            c = fs.getMode(filepath);
-            result.push_back(c);
-            std::cout << "Result: " << result << std::endl;
+            try{
+                c = fs.getMode(filepath);
+                result.push_back(c);
+                std::cout << "Result: " << result << std::endl;
 
-            respType = Response;
-            respCallType = Mode;
-            respIntArgs.push_back(Good);
-            respStrArgs.push_back(result);
+                respType = Response;
+                respCallType = Mode;
+                respIntArgs.push_back(Good);
+                respStrArgs.push_back(result);
+            } catch(noFileException e) {
+                respType = Response;
+                respCallType = Shift;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(NoFileException);
+            }
             break;
         }
         case MonitorEnd:
@@ -134,11 +167,18 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             std::string filepath = call.strArgs[0];
             uint result;
 
-            result = fs.lastModification(filepath);
+            try{
+                result = fs.lastModification(filepath);
 
-            respType = Response;
-            respCallType = Fresh;
-            respIntArgs.push_back(result);
+                respType = Response;
+                respCallType = Fresh;
+                respIntArgs.push_back(result);
+            } catch(noFileException e) {
+                respType = Response;
+                respCallType = Fresh;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(NoFileException);
+            }
 
             break;
         }
@@ -146,12 +186,18 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             std::string filepath = call.strArgs[0];
             std::string result;
 
-            result = fs.readWholeFile(filepath);
+            try{
+                result = fs.readWholeFile(filepath);
 
-            respType = Response;
-            respCallType = Dump;
-            respStrArgs.push_back(result);
-
+                respType = Response;
+                respCallType = Dump;
+                respStrArgs.push_back(result);
+            } catch(noFileException e) {
+                respType = Response;
+                respCallType = Dump;
+                respIntArgs.push_back(Failure);
+                respIntArgs.push_back(NoFileException);
+            }
             break;
         }
     }

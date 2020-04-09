@@ -25,8 +25,7 @@
 //this is for the responses
 typedef enum success_type {
 	Good = 0,
-	Failure = 1,
-	OtherFailure = 2
+	Failure = 1
 } SuccessType;
 
 typedef enum sender_mode {

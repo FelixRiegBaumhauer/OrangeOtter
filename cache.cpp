@@ -39,9 +39,12 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 
 
 	resp = sender->sendMessage(call, sockfd, &servaddr);
-	bytes = resp.strArgs[0];
 
-	//overwrite the file 
+	printf("aa\n");
+	if(resp.strArgs.size() < 1 || (resp.intArgs.size() > 0 && resp.intArgs[0] == Failure) ){ throw noFileException(); }
+	printf("ab\n");
+	bytes = resp.strArgs[0];
+	//overwrite the file or creates it
 	fs.overwriteFile(filepath, bytes);
 
 	return ce;
@@ -67,21 +70,22 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 	cur_time = time(0);
 
+	printf("a\n");
 	//first check the T vs the t
 	CacheEntry ce = findOrMake(filepath, servaddr, sockfd);
+	printf("b\n");
 
-	if(cur_time - ce.lastValidation < t){
-		//cache is valid
-		return;
-	}
 
+	if(cur_time - ce.lastValidation < t){ return; /*cache is valid*/ }
 
 	t_client = fs.lastModification(filepath);
-	time_call = Message(Call, Fresh, {}, {filepath});
+	time_call = Message(Call, Fresh, {}, {filepath}); 
 
-
+	printf("c\n");
 	time_resp = sender->sendMessage(time_call, sockfd, &servaddr);
+	if(time_resp.strArgs.size() < 1 || (time_resp.intArgs.size() > 0 && time_resp.intArgs[0] == Failure) ){ throw noFileException(); }
 	t_server = time_resp.intArgs[0];
+	printf("d\n");
 
 	if(t_client < t_server){
 		std::string bytes;
@@ -91,6 +95,7 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 
 
 		dump_resp = sender->sendMessage(dump_call, sockfd, &servaddr);
+		if(dump_resp.strArgs.size() < 1 || (dump_resp.intArgs.size() > 0 && dump_resp.intArgs[0] == Failure) ){ throw noFileException(); }
 		bytes = dump_resp.strArgs[0];
 		
 		//overwrite the file 

@@ -3,10 +3,14 @@
 
 #include <exception>
 
-struct fileBoundException : public std::exception {
-};
 
-struct noFileException : public std::exception {
-};
+typedef enum exception_code {
+	FileBoundException = 0,
+	NoFileException = 1
+} ExceptionCode;
+
+struct fileBoundException : public std::exception {};
+
+struct noFileException : public std::exception {};
 
 #endif
