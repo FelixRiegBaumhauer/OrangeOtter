@@ -40,7 +40,10 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
 
         if(n > 0){ /* If valid packet, we can now read the packet and show to user */
             notification = sender.recvMessage(sockfd, sa);
-            notification.print();
+            //notification.print();
+
+            //need to check for errors
+            std::cout << "Monitor Update: " << notification.strArgs[0] << " has been altered" << std::endl;
         }
     }
 
@@ -51,32 +54,56 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
 }
 
 void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
-    switch(m.callType){
-        case Read: 
-            m.print();
-            break;
-        case Insert:
-            m.print(); 
-            break;
-        case Monitor: /* Monitor requires special behavior */
-            m.print();
-            m = handleMonitor(m, sockfd, sa);
-            m.print();
-            break;
-        case Shift: 
-            m.print();
-            break;
-        case Mode: 
-            m.print();
-            break;
-        case MonitorUpdate:
-            m.print(); 
-            break;
-        case MonitorEnd:
-            m.print(); 
-            break;
-        default: 
-            break;
+
+    //check for errors right here 
+    if(m.intArgs.size() == 0){
+        throw generalException();
+    }
+
+    if(m.intArgs[0] == Good){
+        switch(m.callType){
+            case Read: 
+                //m.print();
+                std::cout << m.strArgs[0] << std::endl;
+                break;
+            case Insert:
+                //m.print(); 
+                break;
+            case Monitor: /* Monitor requires special behavior */
+                //m.print();
+                std::cout << "Begin Monitoring" << std::endl;
+                m = handleMonitor(m, sockfd, sa);
+                std::cout << "Monitoring Ended" << std::endl;
+                //m.print();
+                break;
+            case Shift: 
+                //m.print();
+                std::cout << "File Shifted" << std::endl;
+                break;
+            case Mode: 
+                //m.print();
+                std::cout << m.strArgs[0] << std::endl;
+                break;
+            default: //ie if a monitor update or monitor end was included somehow
+                throw improperPacketException();
+                break;
+        }
+    }
+    else{ /* This means there was a failure of some sort */
+        if(m.intArgs.size() == 2){
+            if(m.intArgs[1] == NoFileException){
+                std::cout << "The mentioned file does not exist" << std::endl;
+            }
+            else if(m.intArgs[1] == FileBoundException){
+                std::cout << "The Bounds supplied were improper" << std::endl;
+            }
+            else{
+                throw generalException();
+            }
+        }
+        else{
+            throw generalException();
+        }
     }
 }
 
@@ -234,8 +261,6 @@ int main(int argc, char ** argv) {
     in_addr_t clientIp, serverIp;
     const char * serverIpPtr;
 
-    std::cout << "This is the Client" << std::endl;
-
     float prob = DEFAULT_PROB;
     ClientMode mode = DEFAULT_CLIENT_MODE;
     uint t = DEFAULT_T;
@@ -276,6 +301,12 @@ int main(int argc, char ** argv) {
     std::cin >> serverPort;  
 
     clientIp = inet_addr("127.0.0.1");
+
+
+    std::string modeString = (mode == NormalClient) ? "Normal Client Mode" : "Dropping Client Packtes Mode";
+    std::cout << "Running in " << modeString << std::endl;
+    printf("Probabibillty of packet drop: %f\n", prob);
+    std::cout << "Client Cahing T value: " << t << std::endl;
 
 
     try{

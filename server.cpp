@@ -204,7 +204,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
     }
 
     Message resp = Message(respType, respCallType, respIntArgs, respStrArgs);
-    resp.print();
+    //resp.print();
     return resp;
 }
 
@@ -250,9 +250,9 @@ int Server::server_loop(int port, in_addr_t serverIp){
         m = sender.recvMessage(sockfd, &cliaddr);
         clientNum = clientMap.findClientNum(cliaddr);
 
-        printf("Serving Client: %d\n", clientNum);
-
-        m.print();
+        //printf("Serving Client: %d\n", clientNum);
+        //m.print();
+        
         if( checkMap(m, cliaddr, semantic) == 0){
             //we should change this to a list that we then go through and send out
             m = execute(sockfd, m, clientNum);
@@ -322,22 +322,19 @@ int main(int argc, char ** argv) {
         }
     }
 
-    printf("Mode: %d\n",  mode);
-    printf("semantic: %d\n", semantic);
-    printf("prob: %f\n", prob);
-
     server = Server(semantic, mode, prob);
 
-
     serverPort = 8080;
-
-    printf("This is the Server\n");
-
     serverIpStr = "127.0.0.1";
     serverIpPtr = serverIpStr.c_str();
     serverIp = inet_addr(serverIpPtr);
 
     std::cout << "Server hosted on Port: " << serverPort << " and IP address: " << serverIpStr << std::endl;
+
+    std::string modeString = (mode == NormalServer) ? "Normal Server Mode" : "Dropping Server Packtes Mode";
+    std::string semanticString = (semantic == AtMostOnce) ? "At-Most-Once" : "At-Least-Once";
+    std::cout << "Running in " << modeString << ", Using " << semanticString << " semantics" << std::endl;
+    printf("Probabibillty of packet drop: %f\n", prob);
 
     server.server_loop(serverPort, serverIp);
 
