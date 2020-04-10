@@ -55,4 +55,6 @@ clean:
 	@rm *.o
 	@rm client
 	@rm server
-	@rm -r cli
+	@rm -r cli1
+	@rm -r cli2
+	@rm -r cli3
