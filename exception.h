@@ -14,5 +14,7 @@ typedef enum exception_code {
 struct fileBoundException : public std::exception {};
 struct noFileException : public std::exception {};
 struct generalException : public std::exception {};
+struct timeoutException : public std::exception {};
+
 
 #endif

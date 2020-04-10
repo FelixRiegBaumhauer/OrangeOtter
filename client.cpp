@@ -277,7 +277,13 @@ int main(int argc, char ** argv) {
 
     clientIp = inet_addr("127.0.0.1");
 
-    if(client.client_loop(serverPort, clientPort, serverIp, clientIp) != 0){
-        std::cout << "Terminated for unknown reasons" << std::endl;
+
+    try{
+        if(client.client_loop(serverPort, clientPort, serverIp, clientIp) != 0){
+            std::cout << "Terminated for unknown reasons" << std::endl;
+        }
     }
+    catch(timeoutException e){
+        std::cout << "The Message has timedout too many times, the program will halt" << std::endl;
+    } 
 } 

@@ -106,8 +106,7 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 	    i+=1;
     } while(packets_waiting == 0 && i < NUM_TIMEOUTS);
     if(i == NUM_TIMEOUTS){
-    	printf("TIMEOUT ERROR\n");
-    	//NEED TO DO ERROR CHECKING
+        throw timeoutException();
     }
     free(byte_stream);
     

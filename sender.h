@@ -17,6 +17,7 @@
 #include <netinet/in.h> 
 
 #include "marshal.h"
+#include "exception.h"
 
 #define INT_SIZE 4
 #define TIMEOUT_DURATION 10
