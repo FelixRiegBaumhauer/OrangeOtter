@@ -15,6 +15,7 @@
 void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string filepath){
     uint i;
     struct sockaddr_in cliaddr;
+    std::string wholeFile;
 
 
     for(i=0; i<clientNums.size(); i++){
@@ -26,7 +27,9 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
             cliaddr.sin_addr.s_addr = ce.ip_addr;  
             cliaddr.sin_port = ce.port; 
 
-            Message m = Message(Response, MonitorUpdate, {}, {filepath});
+            wholeFile = fs.readWholeFile(filepath);
+
+            Message m = Message(Response, MonitorUpdate, {}, {filepath, wholeFile});
             sender.sendResponse(m, sockfd, &cliaddr);  
         } catch(generalException e){
             std::cout << "Client with id: " << clientNums[i] << " could not be found" << std::endl;
@@ -252,7 +255,7 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
         //printf("Serving Client: %d\n", clientNum);
         //m.print();
-        
+
         if( checkMap(m, cliaddr, semantic) == 0){
             //we should change this to a list that we then go through and send out
             m = execute(sockfd, m, clientNum);

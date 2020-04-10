@@ -44,6 +44,8 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
 
             //need to check for errors
             std::cout << "Monitor Update: " << notification.strArgs[0] << " has been altered" << std::endl;
+            std::cout "The current state of the file: " << std::endl;
+            std::cout << notification.strArgs[1] << std::endl;
         }
     }
 
