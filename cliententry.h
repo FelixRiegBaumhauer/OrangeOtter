@@ -11,6 +11,8 @@
 
 
 class ClientEntry{
+/* ClientENtry is a way to keep entries for a client, essentially it is a mapping from ip address/port to a clientNum */
+
 public:
   uint port;
   in_addr_t ip_addr;

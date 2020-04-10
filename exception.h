@@ -3,6 +3,8 @@
 
 #include <exception>
 
+/* These are the exceptions or our program */
+
 typedef enum exception_code {
 	FileBoundException = 0,
 	NoFileException = 1,

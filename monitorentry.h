@@ -6,6 +6,9 @@
 #include <iostream>
 
 class MonitorEntry{
+
+  /* Monitor Entry is used to note if we need to alert a client of chang in a file */
+
 public:
   std::string filepath;
   time_t startTime;

@@ -12,6 +12,10 @@
 class CacheEntry{
 public:
 
+	/*
+	A Cache entry is just a container for a filepath and the last validation time
+	*/
+
 	time_t lastValidation;
 	std::string filepath;
 

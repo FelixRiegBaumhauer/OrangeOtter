@@ -25,6 +25,9 @@ typedef enum message_type {
 
 
 class Message{
+
+	/* Message is how we transmit data, it lets us package everything up nicely to be sent off */
+
 public:
 	MessageType type;
 	CallType callType;

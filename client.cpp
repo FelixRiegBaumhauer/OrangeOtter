@@ -26,33 +26,31 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
     time_t start_time, end_time, cur_time;
     Message notification, resp;
 
+    /* Get start and end time*/
     duration = m.intArgs[1];
     start_time = time(0);
     end_time = start_time + duration;
 
+    /* We loop for as long as  */
     while( (cur_time = time(0)) < end_time){
         diff = end_time - cur_time;
 
         //here we wait for packets to come in
         if( (n = input_timeout(sockfd, diff)) == -1){ throw generalException(); }
-        //need to do error checking
 
-        if(n > 0){
-            //now read messgae and output it 
+        if(n > 0){ /* If valid packet, we can now read the packet and show to user */
             notification = sender.recvMessage(sockfd, sa);
             notification.print();
         }
     }
 
-    //need to send a special end monitor message
+    //need to send a special end monitor message that will be acknoldeged
     Message endCall = Message(Call, MonitorEnd, {}, {});
     resp = sender.sendMessage(endCall, sockfd, sa);
     return resp;
 }
 
 void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
-    //if we have a monitor we need to wait now
-
     switch(m.callType){
         case Read: 
             m.print();
@@ -60,7 +58,7 @@ void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
         case Insert:
             m.print(); 
             break;
-        case Monitor:
+        case Monitor: /* Monitor requires special behavior */
             m.print();
             m = handleMonitor(m, sockfd, sa);
             m.print();
@@ -79,9 +77,7 @@ void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
             break;
         default: 
             break;
-
     }
-
 }
 
 int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip){
@@ -92,26 +88,20 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr, dummyaddr;
 
-
+    /* seeting up socket and populating sockaddr */
     std::cout << "Establishing Connection" << std::endl;
-
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { return 1; } 
     sender.populateRemoteSockAddr(&cliaddr, client_ip, client_port);
     sender.populateRemoteSockAddr(&servaddr, server_ip, server_port);
-
     std::cout << "Connection Established" << std::endl;
-
 
     // Bind the socket with the client address 
     if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ return 1; } 
 
-
-
+    /* This is the loop were we ask for input */
     while(1){
-
         std::cout << "Enter in your choice" << std::endl;
         std::cin >> inputText;
-        std::cout << "We wrote: " << inputText << std::endl;
 
         if(inputText.compare("read") == 0){
             std::string filepath;
@@ -187,8 +177,6 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
             m = Message(Call, Shift, {1}, {filepath});
         }
 
-
-
         if(inputText.compare("q") == 0){
           std::cout << "Exiting Program" << std::endl;
           return 0;
@@ -197,22 +185,19 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
         //if read ie a read call or a mode call we update the cache and then we always read locally
         if(m.callType == Read){
             try{
+                /* First update the cache, this we add the file if needed */
                 cache.updateCache(m.strArgs[0], servaddr, sockfd);
 
                 std::string result;
-                result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]);          
-                m = Message(Response, Read, 0, {Good}, {result});
+                result = fs.readFile(m.strArgs[0], m.intArgs[0], m.intArgs[1]); /* Now we can read*/
+                m = Message(Response, Read, 0, {Good}, {result}); /* We make our own response */
             } catch(noFileException e) { m = Message(Response, Read, 0, {Failure, NoFileException}, {});                
             } catch(fileBoundException e){ m = Message(Response, Read, 0, {Failure, FileBoundException}, {});
             }
-
-        }
-        else{
-            m = sender.sendMessage(m, sockfd, &servaddr);
-        }
+        }else{ m = sender.sendMessage(m, sockfd, &servaddr); }
 
         try{
-            processResponse(m, sockfd, &servaddr);
+            processResponse(m, sockfd, &servaddr); /* All responses get processed */
         } catch(generalException e){ return 1; }
 
 
@@ -255,6 +240,7 @@ int main(int argc, char ** argv) {
     ClientMode mode = DEFAULT_CLIENT_MODE;
     uint t = DEFAULT_T;
 
+    /* Use getopt to read in arguments */
     int opt;
     while((opt = getopt(argc, argv, "d:t:")) != -1){
         switch(opt){

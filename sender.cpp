@@ -52,7 +52,6 @@ int Sender::input_timeout (int filedes, unsigned int seconds){
 
     /* select returns 0 if timeout, 1 if input available, -1 if error. */
     if((n = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) < 0){
-        printf("ERROR\n");
         return -1;
     }
     return n;
@@ -155,6 +154,7 @@ int Sender::sendResponse(Message m, int sockfd,  struct sockaddr_in * sa){
     return 0;
 }
 
+/* recvWHoleStream takes the first 4 bytes, which contain the size, after wehcih we read the whole packet */
 int Sender::recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa){
 	int len, n, i;
 	uint byte_len;

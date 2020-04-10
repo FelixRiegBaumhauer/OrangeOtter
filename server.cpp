@@ -36,10 +36,6 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
 
 //this function has to execute the needed call
 Message Server::execute(int sockfd, Message call, uint clientNum){
-
-    //need to do appropriate checking here
-    //for each case we call
-
     MessageType respType;
     CallType respCallType;
     std::vector<uint> respIntArgs;
@@ -56,7 +52,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 
             try {
                 result = fs.readFile(filepath, offset, num);
-                std::cout << "Result: " << result << std::endl;
+                //std::cout << "Result: " << result << std::endl;
                 
                 respType = Response;
                 respCallType = Read;
@@ -146,7 +142,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             try{
                 c = fs.getMode(filepath);
                 result.push_back(c);
-                std::cout << "Result: " << result << std::endl;
+                //std::cout << "Result: " << result << std::endl;
 
                 respType = Response;
                 respCallType = Mode;
@@ -216,10 +212,9 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
     uint i = 0;
 
-    if(semantic == AtLeastOnce){ return 0; }
+    if(semantic == AtLeastOnce){ return 0; } /* No need to check if we use AtlEastOnce */
 
     MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
-
     for(i=0; i<messageMap.size(); i++){
         if( mEntry.compareTo(messageMap[i]) == 1){
             return 1;
@@ -253,11 +248,9 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
         memset(&cliaddr, 0, sizeof(cliaddr));
         m = sender.recvMessage(sockfd, &cliaddr);
-
         clientNum = clientMap.findClientNum(cliaddr);
 
         printf("Serving Client: %d\n", clientNum);
-
 
         m.print();
         if( checkMap(m, cliaddr, semantic) == 0){

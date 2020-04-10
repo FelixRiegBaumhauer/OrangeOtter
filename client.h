@@ -44,9 +44,19 @@ public:
 
 	Client();
 	Client(ClientMode mode, float dropProb, uint t);
+
+	/*
+	The client loop serves as the main infite loop of the program, the user inputs instructions and recieves output
+	*/
 	int client_loop(int server_port, int client_port, in_addr_t server_ip, in_addr_t client_ip);
+
+	/* Processes reponse, ie prints the message or other actions */
 	void processResponse(Message m, int sockfd, struct sockaddr_in * sa);
+
+	/* Handles the monitor instruction, which is to wait during the interval and simpily print all monitor updates*/
 	Message handleMonitor(Message m, int sockfd, struct sockaddr_in * sa);
+
+	/* Use to wait for the monitor handler */
 	int input_timeout (int filedes, unsigned int seconds);
 };
 

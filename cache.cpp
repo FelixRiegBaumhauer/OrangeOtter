@@ -1,4 +1,3 @@
-
 #include "cache.h"
 
 
@@ -30,19 +29,16 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 			return cacheMap[i];
 		}
 	}
-	//then copy over the file
+
+	//In this case we have not found the entry so we make one
+
 	call = Message(Call, Dump, {}, {filepath});
-
-
 	resp = sender->sendMessage(call, sockfd, &servaddr);
 
-	if(resp.strArgs.size() < 1 || (resp.intArgs.size() > 0 && resp.intArgs[0] == Failure) ){ 
-		throw noFileException(); 
-	}
+	if(resp.strArgs.size() < 1 || (resp.intArgs.size() > 0 && resp.intArgs[0] == Failure) ){ throw noFileException(); }
 
 	bytes = resp.strArgs[0];
-	//overwrite the file or creates it
-	fs.overwriteFile(filepath, bytes);
+	fs.overwriteFile(filepath, bytes); /* Overwrite file */
 
 	//we only enter in the entry after a succesfu entry
 	CacheEntry ce = CacheEntry(time(0), filepath);
@@ -51,7 +47,7 @@ CacheEntry Cache::findOrMake(std::string filepath, struct sockaddr_in servaddr, 
 	return ce;
 }
 
-//return 0 if good, 1 if bad
+//return 0 if we found a cache entry, 1 if error //
 int Cache::updateCacheTime(std::string filepath, time_t new_time){
 	uint i;
 
@@ -64,7 +60,7 @@ int Cache::updateCacheTime(std::string filepath, time_t new_time){
 	return 1;
 }
 
-//1 if valid, 0 if not
+
 void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int sockfd){
 	time_t cur_time, t_client, t_server;
 	Message time_call, time_resp, dump_call, dump_resp;
@@ -72,9 +68,7 @@ void Cache::updateCache(std::string filepath, struct sockaddr_in servaddr, int s
 	cur_time = time(0);
 	CacheEntry ce = findOrMake(filepath, servaddr, sockfd); /* compare T vs t */
 
-	if(cur_time - ce.lastValidation < t){
-		return; /*cache is valid*/ 
-	}
+	if(cur_time - ce.lastValidation < t){ return; /*cache is valid*/ }
 
 	t_client = fs.lastModification(filepath);
 	time_call = Message(Call, Fresh, {}, {filepath}); 

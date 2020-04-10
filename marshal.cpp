@@ -6,9 +6,7 @@ void Marshal::intToChar(uint src, unsigned char * dest){
 	uint uint_size = sizeof(uint);
 	uint char_size = sizeof(unsigned char);
 
-	nsrc = htonl(src);
-	//nsrc = src;
-
+	nsrc = htonl(src); //not technically needed
 	for(i=0; i<uint_size; i++){
 		dest[i] = nsrc >> (uint_size - i - 1)*BITS_IN_BYTE;
 	}
@@ -18,16 +16,13 @@ int Marshal::charToInt(unsigned char * src){
 	uint i, result, hresult;
 
 	result = 0;
-
 	uint uint_size = sizeof(uint);
 	uint char_size = sizeof(unsigned char);
 	for(i=0; i<uint_size; i++){
 		result = result << (BITS_IN_BYTE);
 		result |= src[i];
 	}
-
-	hresult = ntohl(result);
-	//hresult = result;
+	hresult = ntohl(result); //also not needed
 
 	return hresult;
 }
@@ -40,12 +35,11 @@ uint Marshal::packageString(std::string src, unsigned char * dest){
 	uint dif;
 
 	str_len = src.length();
-
-	intToChar(str_len, dest);
+	intToChar(str_len, dest); /* We first append the length */
 	dest = dest + uint_size;
 	bytes_writen += uint_size;
 
-	//copy over
+	//copy over the string
 	for(i=0; i<str_len; i++){
 		dest[i] = src.at(i);
 	}
@@ -89,7 +83,6 @@ uint Marshal::unpackageString(unsigned char * src, std::string * dest){
 	if(dif == 4){ dif = 0; }
 
 	bytes_writen += dif;
-
 
 	return bytes_writen;
 }

@@ -9,9 +9,7 @@ time_t FileSystem::lastModification(std::string filepath){
   const char *c;
 
   c = filepath.c_str();
-
   if(stat(c, &buf) != 0){ throw noFileException(); }
-  
   return buf.st_mtim.tv_sec;
 }
 
@@ -54,7 +52,7 @@ std::string FileSystem::readFile(std::string filepath, int offset, int num){
 
   //need to do a check
   if(offset + num > retStr.size() || offset < 0 || num < 0){  throw fileBoundException();  }
-  retStr = retStr.substr(offset, num);
+  retStr = retStr.substr(offset, num); /* Get teh substring that we want */
   fileIn.close(); 
 
   return retStr;
@@ -79,6 +77,7 @@ std::vector<uint> FileSystem::insertFile(std::string filepath, int offset, std::
   }
   fileIn.close();
 
+  /* Write the new file back */
   if(offset > tempHold.size() || offset < 0 ){  throw fileBoundException();  }
   tempHold.insert(offset, bytes);
   std::ofstream fileOut(filepath);
@@ -104,14 +103,11 @@ std::vector<uint> FileSystem::checkFile(std::string filepath){
   std::vector<MonitorEntry> vec;
   std::vector<uint> clientInts;
 
-  //sweep is the method we use to find hits
-  vec = mt.sweep(filepath);
+  vec = mt.sweep(filepath); /* Use sweep to find the matches */
 
   int i;
   for(i=0; i<vec.size(); i++){
-    //send out each hit
-    std::cout << "Send Out: " << vec[i].toString() << std::endl;
-    clientInts.push_back(vec[i].clientId);
+    clientInts.push_back(vec[i].clientId); /* append each clientId */
   }
   return clientInts;
 }

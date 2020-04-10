@@ -13,12 +13,19 @@
 #include "exception.h"
 
 class ClientMap{
+
+	/* The client map is set of all client entreries so we know which users are currently using the service */
+
 public:
 	uint curNum;
 	std::vector<ClientEntry> map;
 
-	uint findClientNum(struct sockaddr_in cliaddr);
 	ClientMap();
+
+	/* Finds the client num based on the cliadr ie ip and port, if no client entry found add one  */
+	uint findClientNum(struct sockaddr_in cliaddr);
+
+	/*  Simpily find an existing ClientEntry*/
 	ClientEntry getClientEntry(uint ClientNum);
 };
 

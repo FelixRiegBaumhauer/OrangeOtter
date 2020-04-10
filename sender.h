@@ -34,6 +34,9 @@ typedef enum sender_mode {
 } SenderMode;
 
 class Sender{
+
+	/* The sender is used to send all messages, it uses the marshal and then sends out via UDP */
+
 public:
 
 	float dropProb;
@@ -45,21 +48,24 @@ public:
 	Sender();
 	Sender(float dropProb);
 	
+	/* Accounting to get the numbers right */
 	void updateNum();
 	uint getNum();
 	uint getUpdateNum();
 
 	//return 1 yes drop it, 0 no do not drop it
+	/* Used for simulations, takes the probabillity of the drop to 'drop' a package */
 	uint toDrop();
 
-	//returns the number of packets waiting and waits up to seconds seconds of time
+	/* returns the number of packets waiting and waits up to seconds seconds of time */
 	int input_timeout (int filedes, unsigned int seconds);
 
+	/* Set up sock addr */
 	void populateLocalSockAddr(struct sockaddr_in *sa);
 	void populateRemoteSockAddr(struct sockaddr_in *sa, char * hostname, int port);
 	void populateRemoteSockAddr(struct sockaddr_in *sa, in_addr_t host_ip, int port);
 
-
+	/* Send and recieve messages */
 	Message sendMessage(Message call, int sockfd, struct sockaddr_in *sa);
 	Message recvMessage(int sockfd,  struct sockaddr_in * sa);
 	int sendResponse(Message m, int sockfd,  struct sockaddr_in * sa);

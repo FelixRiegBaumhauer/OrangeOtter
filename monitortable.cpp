@@ -40,7 +40,6 @@ uint MonitorTable::findRemove(uint clientId){
 
   for(i=0; i<list.size(); i++){
     if(clientId == list[i].clientId ){
-      std::cout << "Take Out: " + list[i].toString() << std::endl;
       list.erase(list.begin() + i);
       cnt++;
     }
@@ -72,7 +71,6 @@ std::vector<MonitorEntry> MonitorTable::sweepClean(std::string fp){
 
   for(i=0; i<list.size(); i++){
     if(list[i].startTime+list[i].duration < cur_time ){
-      std::cout << "Take Out: " + list[i].toString() << std::endl;
       list.erase(list.begin() + i);
     }
     else if( fp.compare(list[i].filepath) == 0 ){
