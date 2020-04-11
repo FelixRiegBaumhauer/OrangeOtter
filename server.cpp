@@ -332,14 +332,11 @@ int main(int argc, char ** argv) {
 
     //need to error proof if both -m and -l passed
     int opt;
-    while((opt = getopt(argc, argv, "mld:")) != -1){
+    while((opt = getopt(argc, argv, "ld:")) != -1){
         switch(opt){
             case 'd':
                 mode = DroppingServer;
                 prob = atof(optarg);
-                break;
-            case 'm':
-                semantic = AtMostOnce;
                 break;
             case 'l':
                 semantic = AtLeastOnce;
