@@ -30,8 +30,11 @@ Sender::Sender(float dropProb){
 //1 means yes, do drop and 0 means no dont drop
 uint Sender::toDrop(){
     uint r = rand() % 100;
+    uint drop = dropProb * 100;
 
-    if(r < (dropProb * 100) ){
+    //printf("r: %d, dp: %d \n", r, drop);
+
+    if(r < drop){
         return 1;
     }
     return 0;
@@ -109,6 +112,8 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
         throw timeoutException();
     }
     free(byte_stream);
+
+    //printf("packets_waiting: %d\n", packets_waiting);
     
     n = recvWholeStream(sockfd, (char **)&byte_stream, sa);
     resp = marshal.unmarshalMessage((unsigned char *)byte_stream, &resp_len);
