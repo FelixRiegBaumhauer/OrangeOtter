@@ -222,14 +222,16 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
     uint i = 0;
 
-    if(semantic == AtLeastOnce){ return 0; } /* No need to check if we use AtLeastOnce */
+    if(semantic == AtLeastOnce){ 
+        return 0; 
+    } /* No need to check if we use AtLeastOnce */
 
     //clear out if we have a start
     if(m.callType == Start){
         clearMap(m, cliaddr);
     }
 
-    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
+    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num, m);
     for(i=0; i<messageMap.size(); i++){
         if( mEntry.compareTo(messageMap[i]) == 1){
             return 1;
@@ -237,14 +239,14 @@ int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic s
     }
 
     //in this case we had no hit, so we add it
-    messageMap.push_back(mEntry);
+    //messageMap.push_back(mEntry);
     return 0;
 }
 
 void Server::clearMap(Message m,  struct sockaddr_in cliaddr){
     int i = 0;
 
-    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
+    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num, m);
 
     while(i < messageMap.size()){
         if( mEntry.compareHost(messageMap[i]) == 1){
@@ -254,12 +256,36 @@ void Server::clearMap(Message m,  struct sockaddr_in cliaddr){
     }
 }
 
+void Server::addMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic, Message resp){
+    if(semantic == AtLeastOnce){
+        return;
+    }
+
+    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num, resp);
+    messageMap.push_back(mEntry);
+}
+
+Message Server::getFromMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
+    uint i = 0;
+
+    if(semantic == AtLeastOnce){ throw generalException(); } /*This should not happen */
+
+    for(i=0; i<messageMap.size(); i++){
+        if( messageMap[i].compareTo((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num) == 1){
+            return messageMap[i].message;
+        }
+    }
+
+    //if we find no hit
+    throw generalException();
+}
+
 
 int Server::server_loop(int port, in_addr_t serverIp){
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
-    Message m;
+    Message m, resp;
     uint clientNum; //this number is the current client that we are serving
 
 
@@ -289,10 +315,16 @@ int Server::server_loop(int port, in_addr_t serverIp){
 
         if( checkMap(m, cliaddr, semantic) == 0){
             //we should change this to a list that we then go through and send out
-            m = execute(sockfd, m, clientNum);
+            resp = execute(sockfd, m, clientNum);
+            //now we add to the map
+            addMap(m, cliaddr, semantic, resp);
             //after we act on the message we send a return
-            sender.sendResponse(m, sockfd, &cliaddr);
-        }else{ printf("DUPPLICATE PACKET\n"); }
+            sender.sendResponse(resp, sockfd, &cliaddr);
+        }else{ 
+            printf("DUPLICATE PACKET\n"); 
+            resp = getFromMap(m, cliaddr, semantic);
+            sender.sendResponse(resp, sockfd, &cliaddr);
+        }
     }
     return 0; 
 }
@@ -353,6 +385,7 @@ int main(int argc, char ** argv) {
                 break;
             case 'l':
                 semantic = AtLeastOnce;
+                break;
             default:
                 std::cout << "Improper arguments" << std::endl;
                 return 1;

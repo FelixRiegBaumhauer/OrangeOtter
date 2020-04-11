@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "message.h"
 
 class MessageEntry{
 
@@ -18,10 +19,12 @@ public:
   uint port;
   in_addr_t ip_addr;
   uint num;
+  Message message;
 
-  MessageEntry(uint port, in_addr_t ip_addr, uint num);
+  MessageEntry(uint port, in_addr_t ip_addr, uint num, Message message);
   void print();
   int compareTo(MessageEntry me);
+  int compareTo(uint port, in_addr_t ip_addr, uint num);
   int compareHost(MessageEntry me);
 
 };

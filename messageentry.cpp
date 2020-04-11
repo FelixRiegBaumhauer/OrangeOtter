@@ -1,10 +1,11 @@
 
 #include "messageentry.h"
 
-MessageEntry::MessageEntry(uint port, in_addr_t ip_addr, uint num){
+MessageEntry::MessageEntry(uint port, in_addr_t ip_addr, uint num, Message message){
   this->port = port;
   this->ip_addr = ip_addr;
   this->num = num;
+  this->message = message;
 }
 
 void MessageEntry::print(){
@@ -14,6 +15,13 @@ void MessageEntry::print(){
 //returns 1 if true, 0 if false
 int MessageEntry::compareTo(MessageEntry me){
 	if(this->port == me.port && this->ip_addr == me.ip_addr && this->num == me.num){
+		return 1;
+	}
+	return 0;
+}
+
+int MessageEntry::compareTo(uint port, in_addr_t ip_addr,  uint num){
+	if(this->port == port && this->ip_addr == ip_addr && this->num == num){
 		return 1;
 	}
 	return 0;

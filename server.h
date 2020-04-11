@@ -60,11 +60,19 @@ public:
 	/* The loop is where we wait for commands and act on them */
 	int server_loop(int port, in_addr_t serverIp);
 
+
 	/* Check the message map to see if we have a collision, for At-Most-Once semantics */
 	int checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic);
 
 	/* Clear the map of all messages thatc ome from the same host */
 	void clearMap(Message m,  struct sockaddr_in cliaddr);
+	
+	/* Add an entry to the message map */
+	void addMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic, Message resp);
+	
+	/* Get a response message out of the message map*/
+	Message getFromMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic);
+
 
 	/* Execute the servers response */
 	Message execute(int sockfd, Message call, uint clientNum);
