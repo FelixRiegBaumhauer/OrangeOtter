@@ -204,6 +204,13 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
             }
             break;
         }
+        case Start:{
+            std::cout << "Starting a new client" << std::endl;
+            respType = Response;
+            respCallType = Start;
+            respIntArgs.push_back(Good);
+            break;
+        }
     }
 
     Message resp = Message(respType, respCallType, respIntArgs, respStrArgs);
@@ -215,7 +222,12 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
 int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic){
     uint i = 0;
 
-    if(semantic == AtLeastOnce){ return 0; } /* No need to check if we use AtlEastOnce */
+    if(semantic == AtLeastOnce){ return 0; } /* No need to check if we use AtLeastOnce */
+
+    //clear out if we have a start
+    if(m.callType == Start){
+        clearMap(m, cliaddr);
+    }
 
     MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
     for(i=0; i<messageMap.size(); i++){
@@ -227,6 +239,19 @@ int Server::checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic s
     //in this case we had no hit, so we add it
     messageMap.push_back(mEntry);
     return 0;
+}
+
+void Server::clearMap(Message m,  struct sockaddr_in cliaddr){
+    int i = 0;
+
+    MessageEntry mEntry = MessageEntry((uint) cliaddr.sin_port, cliaddr.sin_addr.s_addr, m.num);
+
+    while(i < messageMap.size()){
+        if( mEntry.compareHost(messageMap[i]) == 1){
+            messageMap.erase(messageMap.begin() + i);
+        }
+        else{ i++; }
+    }
 }
 
 

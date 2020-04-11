@@ -44,7 +44,7 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
 
             //need to check for errors
             std::cout << "Monitor Update: " << notification.strArgs[0] << " has been altered" << std::endl;
-            std::cout "The current state of the file: " << std::endl;
+            std::cout << "The current state of the file: " << std::endl;
             std::cout << notification.strArgs[1] << std::endl;
         }
     }
@@ -86,6 +86,9 @@ void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
                 //m.print();
                 std::cout << m.strArgs[0] << std::endl;
                 break;
+            case Start:
+                std::cout << "Server has acknowledged Starting" << std::endl;
+                break;
             default: //ie if a monitor update or monitor end was included somehow
                 throw improperPacketException();
                 break;
@@ -126,6 +129,13 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
 
     // Bind the socket with the client address 
     if ( bind(sockfd, (const struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0 ){ return 1; } 
+
+    /* First we send out a start message */
+    m = Message(Call, Start, {}, {});
+    m = sender.sendMessage(m, sockfd, &servaddr);
+    try{
+        processResponse(m, sockfd, &servaddr); /* All responses get processed */
+    } catch(generalException e){ return 1; }
 
     /* This is the loop were we ask for input */
     while(1){
@@ -207,8 +217,8 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
         }
 
         if(inputText.compare("q") == 0){
-          std::cout << "Exiting Program" << std::endl;
-          return 0;
+            std::cout << "Exiting Program" << std::endl;
+            return 0;
         }
         
         //if read ie a read call or a mode call we update the cache and then we always read locally

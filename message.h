@@ -14,7 +14,8 @@ typedef enum call_type {
 	MonitorUpdate = 5,
 	MonitorEnd = 6,
 	Fresh = 7,
-	Dump = 8
+	Dump = 8,
+	Start = 9
 } CallType;
 
 

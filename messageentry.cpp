@@ -18,3 +18,11 @@ int MessageEntry::compareTo(MessageEntry me){
 	}
 	return 0;
 }
+
+//returns 1 if true, 0 if false
+int MessageEntry::compareHost(MessageEntry me){
+	if(this->port == me.port && this->ip_addr == me.ip_addr){
+		return 1;
+	}
+	return 0;
+}

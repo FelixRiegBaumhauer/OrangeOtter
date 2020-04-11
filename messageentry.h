@@ -22,6 +22,7 @@ public:
   MessageEntry(uint port, in_addr_t ip_addr, uint num);
   void print();
   int compareTo(MessageEntry me);
+  int compareHost(MessageEntry me);
 
 };
 

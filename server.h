@@ -61,6 +61,9 @@ public:
 	/* Check the message map to see if we have a collision, for At-Most-Once semantics */
 	int checkMap(Message m, struct sockaddr_in cliaddr, InvocationSemantic semantic);
 
+	/* Clear the map of all messages thatc ome from the same host */
+	void clearMap(Message m,  struct sockaddr_in cliaddr);
+
 	/* Execute the servers response */
 	Message execute(int sockfd, Message call, uint clientNum);
 

@@ -64,6 +64,8 @@ void Message::print(){
 			break;
 		case Fresh: responseType = "Fresh";
 			break;
+		case Start: responseType = "Start";
+			break;
 		default: responseType = "Default";
 			break;
 
