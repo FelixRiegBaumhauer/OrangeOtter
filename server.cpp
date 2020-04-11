@@ -278,6 +278,12 @@ int Server::server_loop(int port, in_addr_t serverIp){
         m = sender.recvMessage(sockfd, &cliaddr);
         clientNum = clientMap.findClientNum(cliaddr);
 
+        if(waitTime > 0){
+            std::cout << "Now we sleep for " << waitTime << " seconds, to simulate delays in network" << std::endl;
+            sleep(waitTime);
+            std::cout << "Server wakes" << std::endl; 
+        }
+
         //printf("Serving Client: %d\n", clientNum);
         //m.print();
 
@@ -295,9 +301,10 @@ Server::Server(){
     this->semantic = DEFAULT_INVOCATION_SEMANTIC;
     this->mode = DEFAULT_SERVER_MODE;
     this->dropProb = DEFAULT_PROB;
+    this->waitTime = DEFAULT_WAIT_TIME;
 }
 
-Server::Server(InvocationSemantic semantic, ServerMode mode, float dropProb){
+Server::Server(InvocationSemantic semantic, ServerMode mode, float dropProb, uint waitTime){
 
     if(mode == DroppingServer){
         sender = Sender(dropProb);
@@ -306,6 +313,7 @@ Server::Server(InvocationSemantic semantic, ServerMode mode, float dropProb){
     this->semantic = semantic;
     this->mode = mode;
     this->dropProb = dropProb;
+    this->waitTime = waitTime;
 }
 
 
@@ -322,21 +330,26 @@ int main(int argc, char ** argv) {
     and we have server -d p where p is the drop percentage for the dropping
     */
     float prob;
+    uint waitTime;
     InvocationSemantic semantic;
     ServerMode mode;
 
-    semantic = AtMostOnce;
-    mode = NormalServer;
-    prob = 0;
+    semantic = DEFAULT_INVOCATION_SEMANTIC; //AtMostOnce
+    mode = DEFAULT_SERVER_MODE; //NormalServer
+    prob = DEFAULT_PROB; //0
+    waitTime = DEFAULT_WAIT_TIME; //0
 
 
     //need to error proof if both -m and -l passed
     int opt;
-    while((opt = getopt(argc, argv, "ld:")) != -1){
+    while((opt = getopt(argc, argv, "ld:w:")) != -1){
         switch(opt){
             case 'd':
                 mode = DroppingServer;
                 prob = atof(optarg);
+                break;
+            case 'w':
+                waitTime = atoi(optarg);
                 break;
             case 'l':
                 semantic = AtLeastOnce;
@@ -347,7 +360,7 @@ int main(int argc, char ** argv) {
         }
     }
 
-    server = Server(semantic, mode, prob);
+    server = Server(semantic, mode, prob, waitTime);
 
     serverPort = 8080;
     serverIpStr = "127.0.0.1";
@@ -359,7 +372,7 @@ int main(int argc, char ** argv) {
     std::string modeString = (mode == NormalServer) ? "Normal Server Mode" : "Dropping Server Packtes Mode";
     std::string semanticString = (semantic == AtMostOnce) ? "At-Most-Once" : "At-Least-Once";
     std::cout << "Running in " << modeString << ", Using " << semanticString << " semantics" << std::endl;
-    printf("Probabibillty of packet drop: %f\n", prob);
+    printf("Probabibillty of packet drop: %f, and wait time of: %d\n", prob, waitTime);
 
     server.server_loop(serverPort, serverIp);
 

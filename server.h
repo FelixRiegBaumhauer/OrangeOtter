@@ -24,6 +24,7 @@
 #define DEFAULT_INVOCATION_SEMANTIC AtMostOnce
 #define DEFAULT_SERVER_MODE NormalServer
 #define DEFAULT_PROB 0
+#define DEFAULT_WAIT_TIME 0
 
 typedef enum invocation_semantic {
 	AtMostOnce = 0,
@@ -48,12 +49,13 @@ public:
 	InvocationSemantic semantic;
 	ServerMode mode;
 	float dropProb;
+	uint waitTime;
 
     Sender sender;
 	ClientMap clientMap;
 
 	Server();
-	Server(InvocationSemantic semantic, ServerMode mode, float dropProb);
+	Server(InvocationSemantic semantic, ServerMode mode, float dropProb, uint waitTime);
 
 	/* The loop is where we wait for commands and act on them */
 	int server_loop(int port, in_addr_t serverIp);
