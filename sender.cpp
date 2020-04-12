@@ -86,8 +86,8 @@ void Sender::populateRemoteSockAddr(struct sockaddr_in *sa, in_addr_t host_ip, i
 
 Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
 	unsigned char * byte_stream;
-	uint stream_len, resp_len; //, ack_len;
-    int n, len, packets_waiting, i;
+	uint stream_len, resp_len, packet_num; //, ack_len;
+    int n, len, packets_waiting, i, j;
     Message resp;
 
     //first we update the message num
@@ -96,7 +96,43 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     //basic idea is that we first send a call, wait for response and then return that
     byte_stream = marshal.marshalMessage(call, &stream_len);
 
+    packet_num = call.num;
+
     //the idea of this do while loop is to check if we have an response waiting, 
+
+    for(i=0; i<NUM_TIMEOUTS; i++){
+        //send packet
+        if(toDrop() == 0){
+            if(senderMode == DroppingSender){ printf("PACKET SENT\n"); }
+            sendto(sockfd, (reinterpret_cast<const char*>(byte_stream)), stream_len, MSG_CONFIRM, (const struct sockaddr *) sa, sizeof(*sa)); 
+        } else if(senderMode == DroppingSender){ printf("PACKET DROPPED\n"); } 
+
+        //poll for arrivals
+        packets_waiting = input_timeout(sockfd, TIMEOUT_DURATION);
+
+        //for all the arrived now we read and marshal
+        for(j=0; j<packets_waiting; j++){
+            n = recvWholeStream(sockfd, (char **)&byte_stream, sa);
+            resp = marshal.unmarshalMessage((unsigned char *)byte_stream, &resp_len);
+    
+            if(call.callType == resp.callType){ //need to add call.num == resp.num &&
+                free(byte_stream);
+                return resp;
+            }
+            else{
+                printf("call num: %d resp num: %d\n", call.num, resp.num);
+                resp.print();
+                printf("We got an old one\n");
+            }
+        }
+
+    }
+
+    free(byte_stream);
+    throw timeoutException();
+
+
+    /*
     i = 0;
     do{
         if(toDrop() == 0){
@@ -117,7 +153,11 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     
     n = recvWholeStream(sockfd, (char **)&byte_stream, sa);
     resp = marshal.unmarshalMessage((unsigned char *)byte_stream, &resp_len);
+    
+    printf("call num: %d resp num: %d\n", packet_num, resp.num);
+
     return resp;
+    */
 }
 
 //we must assume that cliaddr has been wiped clean for us

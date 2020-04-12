@@ -310,8 +310,8 @@ int Server::server_loop(int port, in_addr_t serverIp){
             std::cout << "Server wakes" << std::endl; 
         }
 
-        //printf("Serving Client: %d\n", clientNum);
-        //m.print();
+        printf("Serving Client: %d\n", clientNum);
+        m.print();
 
         if( checkMap(m, cliaddr, semantic) == 0){
             //we should change this to a list that we then go through and send out
