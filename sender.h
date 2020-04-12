@@ -21,7 +21,7 @@
 
 #define INT_SIZE 4
 #define TIMEOUT_DURATION 10
-#define NUM_TIMEOUTS 3
+#define NUM_TIMEOUTS 5
 
 //this is for the responses
 typedef enum success_type {
@@ -59,7 +59,7 @@ public:
 	uint toDrop();
 
 	/* returns the number of packets waiting and waits up to seconds seconds of time */
-	int input_timeout (int filedes, unsigned int seconds);
+	int input_timeout (int filedes, unsigned int seconds, unsigned int * remaining_seconds);
 
 	/* Set up sock addr */
 	void populateLocalSockAddr(struct sockaddr_in *sa);
@@ -69,7 +69,7 @@ public:
 	/* Send and recieve messages */
 	Message sendMessage(Message call, int sockfd, struct sockaddr_in *sa);
 	Message recvMessage(int sockfd,  struct sockaddr_in * sa);
-	int sendResponse(Message m, int sockfd,  struct sockaddr_in * sa);
+	int sendResponse(Message call, Message resp, int sockfd,  struct sockaddr_in * sa);
 
 	//reads in chunks for big messages returns number of bytes read
 	int recvWholeStream(int sockfd, char ** buf, struct sockaddr_in * sa);

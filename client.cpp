@@ -24,7 +24,7 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
     uint duration, diff;
     int n;
     time_t start_time, end_time, cur_time;
-    Message notification, resp;
+    Message notCall, notResp, endResp, endCall; // notCall is for notification
 
     /* Get start and end time*/
     duration = m.intArgs[1];
@@ -39,20 +39,34 @@ Message Client::handleMonitor(Message m, int sockfd, struct sockaddr_in * sa){
         if( (n = input_timeout(sockfd, diff)) == -1){ throw generalException(); }
 
         if(n > 0){ /* If valid packet, we can now read the packet and show to user */
-            notification = sender.recvMessage(sockfd, sa);
+            notCall = sender.recvMessage(sockfd, sa);
             //notification.print();
 
-            //need to check for errors
-            std::cout << "Monitor Update: " << notification.strArgs[0] << " has been altered" << std::endl;
-            std::cout << "The current state of the file: " << std::endl;
-            std::cout << notification.strArgs[1] << std::endl;
+            if(checkMap(notCall) == 0){
+                //need to check for errors
+                std::cout << "Monitor Update: " << notCall.strArgs[0] << " has been altered" << std::endl;
+                std::cout << "The current state of the file: " << std::endl;
+                std::cout << notCall.strArgs[1] << std::endl;
+
+                //now we send the response
+                notResp = Message(Response, MonitorUpdate, {Good}, {});
+                sender.sendResponse(notCall, notResp, sockfd, sa);
+            }
+            else{
+                std::cout << "DUPLICATE PACKET" << std::endl;
+
+                //means we have to resend the response
+                //notResp = Message(Response, MonitorUpdate, {Good}, {});
+                //sender.sendResponse(notCall, notResp, sockfd, sa);
+            }
+
         }
     }
 
     //need to send a special end monitor message that will be acknoldeged
-    Message endCall = Message(Call, MonitorEnd, {}, {});
-    resp = sender.sendMessage(endCall, sockfd, sa);
-    return resp;
+    endCall = Message(Call, MonitorEnd, {}, {});
+    endResp = sender.sendMessage(endCall, sockfd, sa);
+    return endResp;
 }
 
 void Client::processResponse(Message m, int sockfd, struct sockaddr_in * sa){
@@ -243,16 +257,35 @@ int Client::client_loop(int server_port, int client_port, in_addr_t server_ip, i
     }
 }
 
+// return 0 if all good
+int Client::checkMap(Message m){
+    int num;
+    num = m.num;
+
+    if(semantic == AtLeastOnce){
+        return 0;
+    }
+
+    if(num > prevPacketNumber){
+        prevPacketNumber = num;
+        return 0;
+    }
+    return 1;
+}
+
 Client::Client(){
     this->mode = DEFAULT_CLIENT_MODE;
     this->dropProb = DEFAULT_PROB;
     this->t = DEFAULT_T;
+    this->prevPacketNumber = -1;
+    this->semantic = DEFAULT_SEMANTIC;
+
 
     cache = Cache(DEFAULT_T, &sender);
 }
 
 //nasty bug in the making
-Client::Client(ClientMode mode, float dropProb, uint t){
+Client::Client(ClientMode mode, float dropProb, uint t, InvocationSemantic semantic){
 
     if(mode == DroppingClient){
         this->sender = Sender(dropProb);
@@ -261,6 +294,9 @@ Client::Client(ClientMode mode, float dropProb, uint t){
     this->mode = mode;
     this->dropProb = dropProb;
     this->t = t;
+    this->prevPacketNumber = -1;
+    this->semantic = semantic;
+
 
     this->cache = Cache(t, &sender);
 }
@@ -276,10 +312,11 @@ int main(int argc, char ** argv) {
     float prob = DEFAULT_PROB;
     ClientMode mode = DEFAULT_CLIENT_MODE;
     uint t = DEFAULT_T;
+    InvocationSemantic semantic = DEFAULT_SEMANTIC;
 
     /* Use getopt to read in arguments */
     int opt;
-    while((opt = getopt(argc, argv, "d:t:")) != -1){
+    while((opt = getopt(argc, argv, "ld:t:")) != -1){
         switch(opt){
             case 'd':
                 mode = DroppingClient;
@@ -288,18 +325,17 @@ int main(int argc, char ** argv) {
             case 't':
                 t = atoi(optarg);
                 break;
+            case 'l':
+                semantic = AtLeastOnce;
+                break;
             default:
                 return 1;
                 break;
         }
     }
 
-    printf("mode: %d\n", mode);
-    printf("prob: %f\n", prob);
-    printf("t: %d\n", t);
 
-
-    Client client = Client(mode, prob, t);
+    Client client = Client(mode, prob, t, semantic);
 
     std::cout << "Enter the desired Client Port number" << std::endl;
     std::cin >> clientPort;
@@ -316,7 +352,8 @@ int main(int argc, char ** argv) {
 
 
     std::string modeString = (mode == NormalClient) ? "Normal Client Mode" : "Dropping Client Packtes Mode";
-    std::cout << "Running in " << modeString << std::endl;
+    std::string semanticString = (semantic == AtMostOnce) ? "At-Most-Once" : "At-Least-Once";
+    std::cout << "Running in " << modeString << " with semantic: " << semanticString << std::endl;
     printf("Probabibillty of packet drop: %f\n", prob);
     std::cout << "Client Cahing T value: " << t << std::endl;
 

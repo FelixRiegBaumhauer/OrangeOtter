@@ -25,7 +25,12 @@
 #define DEFAULT_T 5
 #define DEFAULT_CLIENT_MODE NormalClient
 #define DEFAULT_PROB 0
+#define DEFAULT_SEMANTIC AtMostOnce
 
+typedef enum invocation_semantic {
+	AtMostOnce = 0,
+	AtLeastOnce = 1
+} InvocationSemantic;
 
 typedef enum client_mode {
 	NormalClient = 0,
@@ -41,9 +46,11 @@ public:
 	ClientMode mode;
 	float dropProb;
 	uint t;
+	int prevPacketNumber;
+	InvocationSemantic semantic;
 
 	Client();
-	Client(ClientMode mode, float dropProb, uint t);
+	Client(ClientMode mode, float dropProb, uint t, InvocationSemantic semantic);
 
 	/*
 	The client loop serves as the main infite loop of the program, the user inputs instructions and recieves output
@@ -58,6 +65,9 @@ public:
 
 	/* Use to wait for the monitor handler */
 	int input_timeout (int filedes, unsigned int seconds);
+
+	/* cehcks the map, ie the prevPacketNum, to see that all is good, returns 0 if good, 1 if duplicate */
+	int checkMap(Message m);
 };
 
 

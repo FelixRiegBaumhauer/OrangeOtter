@@ -29,8 +29,11 @@ void Server::sendList(int sockfd, std::vector<uint> clientNums, std::string file
 
             wholeFile = fs.readWholeFile(filepath);
 
-            Message m = Message(Response, MonitorUpdate, {}, {filepath, wholeFile});
-            sender.sendResponse(m, sockfd, &cliaddr);  
+            Message call = Message(Call, MonitorUpdate, {}, {filepath, wholeFile});  
+            Message resp = sender.sendMessage(call, sockfd, &cliaddr);          
+
+            //Message m = Message(Response, MonitorUpdate, {}, {filepath, wholeFile});
+            //sender.sendResponse(m, sockfd, &cliaddr);  
         } catch(generalException e){
             std::cout << "Client with id: " << clientNums[i] << " could not be found" << std::endl;
         }      
@@ -153,7 +156,7 @@ Message Server::execute(int sockfd, Message call, uint clientNum){
                 respStrArgs.push_back(result);
             } catch(noFileException e) {
                 respType = Response;
-                respCallType = Shift;
+                respCallType = Mode;
                 respIntArgs.push_back(Failure);
                 respIntArgs.push_back(NoFileException);
             }
@@ -285,7 +288,7 @@ int Server::server_loop(int port, in_addr_t serverIp){
     int sockfd; 
     struct sockaddr_in servaddr, cliaddr; 
     unsigned char * byte_stream;
-    Message m, resp;
+    Message call, resp;
     uint clientNum; //this number is the current client that we are serving
 
 
@@ -301,7 +304,7 @@ int Server::server_loop(int port, in_addr_t serverIp){
         //check if this message is in our map, then we either discard or proceed
 
         memset(&cliaddr, 0, sizeof(cliaddr));
-        m = sender.recvMessage(sockfd, &cliaddr);
+        call = sender.recvMessage(sockfd, &cliaddr);
         clientNum = clientMap.findClientNum(cliaddr);
 
         if(waitTime > 0){
@@ -311,19 +314,19 @@ int Server::server_loop(int port, in_addr_t serverIp){
         }
 
         printf("Serving Client: %d\n", clientNum);
-        m.print();
+        //m.print();
 
-        if( checkMap(m, cliaddr, semantic) == 0){
+        if( checkMap(call, cliaddr, semantic) == 0){
             //we should change this to a list that we then go through and send out
-            resp = execute(sockfd, m, clientNum);
+            resp = execute(sockfd, call, clientNum);
             //now we add to the map
-            addMap(m, cliaddr, semantic, resp);
+            addMap(call, cliaddr, semantic, resp);
             //after we act on the message we send a return
-            sender.sendResponse(resp, sockfd, &cliaddr);
+            sender.sendResponse(call, resp, sockfd, &cliaddr);
         }else{ 
             printf("DUPLICATE PACKET\n"); 
-            resp = getFromMap(m, cliaddr, semantic);
-            sender.sendResponse(resp, sockfd, &cliaddr);
+            resp = getFromMap(call, cliaddr, semantic);
+            sender.sendResponse(call, resp, sockfd, &cliaddr);
         }
     }
     return 0; 
