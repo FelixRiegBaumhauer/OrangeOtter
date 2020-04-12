@@ -227,6 +227,22 @@ uint Marshal::getMarshalLength(unsigned char * buf){
 	return charToInt(buf);
 }
 
+uint Marshal::getMarshalNum(unsigned char * buf){
+	uint uint_size = sizeof(uint);
+	return charToInt(buf + 3*uint_size);
+}
+
+uint Marshal::getMarshalType(unsigned char * buf){
+	uint uint_size = sizeof(uint);
+	return charToInt(buf + 1*uint_size);
+}
+
+uint Marshal::getMarshalCallType(unsigned char * buf){
+	uint uint_size = sizeof(uint);
+	return charToInt(buf + 2*uint_size);
+}
+
+
 unsigned char * Marshal::marshalMessage(Message m, uint * len){
 	uint uint_size = sizeof(uint);
 	uint size;

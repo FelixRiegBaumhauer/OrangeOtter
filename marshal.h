@@ -25,6 +25,15 @@ public:
 	/* Get teh length of the byte stream */
 	uint getMarshalLength(unsigned char * buf);
 
+	/* Get the packet number out of a byte stream */
+	uint getMarshalNum(unsigned char * buf);
+
+	/* Extract type from byte stream */
+	uint getMarshalType(unsigned char * buf);
+
+	/* Extract Call type from byte stream */
+	uint getMarshalCallType(unsigned char * buf);
+
 	/* Package list of strings string into byte stream */
 	uint packageStrings(std::vector<std::string> src, unsigned char * dest);
 	uint unpackageStrings(unsigned char * src, std::vector<std::string> * dest);
