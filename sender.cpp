@@ -105,8 +105,8 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
     //first we update the message num
     call.setNum(getUpdateNum());
 
-    std::cout << "Sent: ";
-    call.print();
+    //std::cout << "Sent: ";
+    //call.print();
 
     //basic idea is that we first send a call, wait for response and then return that
     //byte_stream = marshal.marshalMessage(call, &stream_len);
@@ -138,8 +138,8 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
                     free(call_stream);
                     free(resp_stream);
                     
-                    std::cout << "Recivied: ";
-                    resp.print();
+                    //std::cout << "Recivied: ";
+                    //resp.print();
                     
                     return resp;
                 }
@@ -147,8 +147,8 @@ Message Sender::sendMessage(Message call, int sockfd, struct sockaddr_in *sa){
                     //we can free the response stream as every time this loop happens we re alloc it
                     free(resp_stream);
 
-                    std::cout << "Recivied: ";
-                    resp.print();
+                    //std::cout << "Recivied: ";
+                    //resp.print();
                     
                     printf("IMPROPER PACKET RECIEVED\n");
                 }
@@ -174,8 +174,8 @@ Message Sender::recvMessage(int sockfd,  struct sockaddr_in * sa){
     m = marshal.unmarshalMessage((unsigned char *)buf, &call_len);
     free(buf);
 
-    std::cout << "Recivied: ";
-    m.print();
+    //std::cout << "Recivied: ";
+    //m.print();
 
     return m;
 }
@@ -192,8 +192,8 @@ int Sender::sendResponse(Message call, Message resp, int sockfd,  struct sockadd
     //we set teh response number to the call number so we can filter out on the recieving side
     resp.setNum(call.getNum());
 
-    std::cout << "Sent: ";
-    resp.print();
+    //std::cout << "Sent: ";
+    //resp.print();
 
     len = sizeof(*sa);
     byte_stream = marshal.marshalMessage(resp, &stream_len);
